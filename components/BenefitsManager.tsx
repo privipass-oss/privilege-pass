@@ -77,10 +77,10 @@ export const BenefitsManager: React.FC<BenefitsManagerProps> = ({ benefits, onAd
         ))}
       </div>
 
-      {/* Add Modal - FIXED LAYOUT SCROLL */}
+      {/* Add Modal - FIXED LAYOUT SCROLL items-start + py-24 */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setIsModalOpen(false)}>
-          <div className="min-h-full flex items-start justify-center p-4 py-12">
+          <div className="min-h-full flex items-start justify-center p-4 py-24">
             <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-white">Adicionar Parceiro</h3>

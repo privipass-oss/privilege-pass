@@ -86,51 +86,53 @@ export const FAQManager: React.FC<FAQManagerProps> = ({ items, onAdd, onUpdate, 
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-white">{editingItem ? 'Editar Pergunta' : 'Nova Pergunta'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white"><X /></button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                 <label className="text-xs font-bold text-zinc-500 uppercase">Categoria</label>
-                 <select 
-                   className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                   value={formData.category || 'Geral'}
-                   onChange={e => setFormData({...formData, category: e.target.value as any})}
-                 >
-                    <option value="Geral">Geral</option>
-                    <option value="Acesso">Acesso</option>
-                    <option value="Financeiro">Financeiro</option>
-                    <option value="Técnico">Técnico</option>
-                 </select>
-              </div>
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase">Pergunta</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                  value={formData.question || ''}
-                  onChange={e => setFormData({...formData, question: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase">Resposta</label>
-                <textarea 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-32 resize-none"
-                  value={formData.answer || ''}
-                  onChange={e => setFormData({...formData, answer: e.target.value})}
-                />
-              </div>
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setIsModalOpen(false)}>
+          <div className="min-h-full flex items-start justify-center p-4 py-24">
+            <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold text-white">{editingItem ? 'Editar Pergunta' : 'Nova Pergunta'}</h3>
+                  <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white"><X /></button>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 uppercase">Categoria</label>
+                    <select 
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                      value={formData.category || 'Geral'}
+                      onChange={e => setFormData({...formData, category: e.target.value as any})}
+                    >
+                        <option value="Geral">Geral</option>
+                        <option value="Acesso">Acesso</option>
+                        <option value="Financeiro">Financeiro</option>
+                        <option value="Técnico">Técnico</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 uppercase">Pergunta</label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                      value={formData.question || ''}
+                      onChange={e => setFormData({...formData, question: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 uppercase">Resposta</label>
+                    <textarea 
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-32 resize-none"
+                      value={formData.answer || ''}
+                      onChange={e => setFormData({...formData, answer: e.target.value})}
+                    />
+                  </div>
 
-              <button 
-                onClick={handleSave}
-                className="w-full py-4 bg-gradient-gold text-black font-bold rounded-xl mt-4 hover:brightness-110 transition-all flex items-center justify-center gap-2"
-              >
-                <Save size={18} /> Salvar
-              </button>
+                  <button 
+                    onClick={handleSave}
+                    className="w-full py-4 bg-gradient-gold text-black font-bold rounded-xl mt-4 hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Save size={18} /> Salvar
+                  </button>
+                </div>
             </div>
           </div>
         </div>

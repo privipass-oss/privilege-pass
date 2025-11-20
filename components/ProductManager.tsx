@@ -109,57 +109,59 @@ export const ProductManager: React.FC<ProductManagerProps> = ({ products, onUpda
         })}
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit Modal - FIXED LAYOUT: items-start + py-24 */}
       {editingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-md w-full relative shadow-2xl">
-            <button onClick={() => setEditingProduct(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X /></button>
-            
-            <div className="flex items-center gap-3 mb-6">
-               <div className="p-3 bg-gold-500/20 rounded-xl text-gold-500">
-                  <Tag size={24} />
-               </div>
-               <div>
-                  <h3 className="text-xl font-bold text-white">Editar Produto</h3>
-                  <p className="text-zinc-400 text-sm">Alterações refletem na hora.</p>
-               </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase">Nome do Pacote</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                  value={formData.name}
-                  onChange={e => setFormData({...formData, name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase">Descrição (Marketing)</label>
-                <textarea 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-24 resize-none"
-                  value={formData.description}
-                  onChange={e => setFormData({...formData, description: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-1"><DollarSign size={12}/> Preço (R$)</label>
-                <input 
-                  type="number" 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                  value={formData.price}
-                  onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})}
-                />
-              </div>
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setEditingProduct(null)}>
+          <div className="min-h-full flex items-start justify-center py-24 px-4">
+            <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setEditingProduct(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X /></button>
               
-              <div className="pt-2">
-                 <button 
-                  onClick={handleSave}
-                  className="w-full py-3 bg-gradient-gold text-black font-bold rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2"
-                >
-                  <CheckCircle size={18} /> Salvar Alterações
-                </button>
+              <div className="flex items-center gap-3 mb-6">
+                 <div className="p-3 bg-gold-500/20 rounded-xl text-gold-500">
+                    <Tag size={24} />
+                 </div>
+                 <div>
+                    <h3 className="text-xl font-bold text-white">Editar Produto</h3>
+                    <p className="text-zinc-400 text-sm">Alterações refletem na hora.</p>
+                 </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 uppercase">Nome do Pacote</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                    value={formData.name}
+                    onChange={e => setFormData({...formData, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 uppercase">Descrição (Marketing)</label>
+                  <textarea 
+                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-24 resize-none"
+                    value={formData.description}
+                    onChange={e => setFormData({...formData, description: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-1"><DollarSign size={12}/> Preço (R$)</label>
+                  <input 
+                    type="number" 
+                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                    value={formData.price}
+                    onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})}
+                  />
+                </div>
+                
+                <div className="pt-2">
+                   <button 
+                    onClick={handleSave}
+                    className="w-full py-3 bg-gradient-gold text-black font-bold rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle size={18} /> Salvar Alterações
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -214,7 +214,7 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
       {showSuccessModal && generatedVoucherData && (
           <div className="fixed inset-0 z-[100] bg-black/95 overflow-y-auto">
                {/* Safe Scroll Container */}
-              <div className="min-h-screen flex items-start justify-center py-12 px-4" onClick={() => setShowSuccessModal(false)}>
+              <div className="min-h-screen flex items-start justify-center py-20 px-4" onClick={() => setShowSuccessModal(false)}>
                   <div className="w-full flex flex-col items-center" onClick={e => e.stopPropagation()}>
                         {/* Actions Toolbar */}
                         <div className="absolute top-4 right-4 md:top-8 md:right-8 flex flex-col md:flex-row gap-4 no-print z-50">
@@ -333,11 +333,11 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
         ))}
       </div>
 
-      {/* Create Customer Modal - FIXED HEIGHT AND SCROLL */}
+      {/* Create Customer Modal - FIXED LAYOUT: items-start + py-32 to prevent cutting */}
       {isNewCustomerModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setIsNewCustomerModalOpen(false)}>
-              <div className="min-h-full flex items-center justify-center p-4">
-                  <div className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full relative shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="min-h-full flex items-start justify-center py-32 px-4">
+                  <div className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
                       <button onClick={() => setIsNewCustomerModalOpen(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X /></button>
                       <h3 className="text-xl font-bold text-white mb-6">Cadastro Manual</h3>
                       <form onSubmit={handleCreateCustomer} className="space-y-4">
@@ -376,7 +376,7 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
             onClick={() => setSelectedCustomer(null)}
         >
             {/* Flex items-start prevents top cutoff */}
-            <div className="min-h-full flex items-start justify-center py-12 px-4" onClick={e => e.stopPropagation()}>
+            <div className="min-h-full flex items-start justify-center py-20 px-4" onClick={e => e.stopPropagation()}>
                 
                 {/* Modal Container */}
                 <div 
