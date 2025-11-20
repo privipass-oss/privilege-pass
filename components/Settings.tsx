@@ -32,7 +32,7 @@ export const Settings: React.FC<SettingsProps> = ({
 
   // Staff Modal State
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
-  const [newStaff, setNewStaff] = useState({ name: '', email: '', role: 'Suporte' });
+  const [newStaff, setNewStaff] = useState({ name: '', email: '', role: 'Suporte', password: '' });
 
   // Password Modal State
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -58,22 +58,32 @@ export const Settings: React.FC<SettingsProps> = ({
   };
 
   const handleAddStaffSubmit = () => {
-      if(newStaff.name && newStaff.email) {
+      if(newStaff.name && newStaff.email && newStaff.password) {
+          if(newStaff.password.length < 6) {
+              alert("A senha deve ter pelo menos 6 caracteres.");
+              return;
+          }
+          
           const staffMember: AdminUser = {
               id: Date.now().toString(),
               name: newStaff.name,
               email: newStaff.email,
               role: newStaff.role as any,
               avatarUrl: `https://ui-avatars.com/api/?name=${newStaff.name}&background=random`,
-              lastActive: 'Nunca'
+              lastActive: 'Nunca',
+              password: newStaff.password
           };
           if(onAddStaff) onAddStaff(staffMember);
           setIsStaffModalOpen(false);
-          setNewStaff({ name: '', email: '', role: 'Suporte' });
+          setNewStaff({ name: '', email: '', role: 'Suporte', password: '' });
+          alert(`Membro adicionado! Login: ${newStaff.email} | Senha: ${newStaff.password}`);
+      } else {
+          alert("Preencha todos os campos.");
       }
   };
 
   const handleChangePasswordSubmit = () => {
+      // Basic validation
       if(passwordData.new !== passwordData.confirm) {
           alert("As novas senhas não coincidem.");
           return;
@@ -82,7 +92,18 @@ export const Settings: React.FC<SettingsProps> = ({
           alert("A senha deve ter pelo menos 6 caracteres.");
           return;
       }
-      alert("Senha alterada com sucesso!");
+      // Check current password (basic check against prop)
+      if(adminProfile.password && passwordData.current !== adminProfile.password) {
+          alert("Senha atual incorreta.");
+          return;
+      }
+
+      // Update via prop to App State
+      if(onUpdateProfile) {
+          onUpdateProfile({ password: passwordData.new });
+          alert("Senha de Administrador atualizada com sucesso! Use a nova senha no próximo login.");
+      }
+      
       setIsPasswordModalOpen(false);
       setPasswordData({ current: '', new: '', confirm: '' });
   };
@@ -271,6 +292,10 @@ export const Settings: React.FC<SettingsProps> = ({
                       <div className="space-y-4">
                           <div><label className="text-xs font-bold text-zinc-500 uppercase">Nome</label><input type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white" onChange={e => setNewStaff({...newStaff, name: e.target.value})}/></div>
                           <div><label className="text-xs font-bold text-zinc-500 uppercase">Email</label><input type="email" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white" onChange={e => setNewStaff({...newStaff, email: e.target.value})}/></div>
+                          <div>
+                              <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-1"><Key size={12}/> Senha de Acesso</label>
+                              <input type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white" placeholder="Mínimo 6 caracteres" onChange={e => setNewStaff({...newStaff, password: e.target.value})}/>
+                          </div>
                           <div>
                               <label className="text-xs font-bold text-zinc-500 uppercase">Cargo</label>
                               <select className="w-full bg-black border border-white/10 rounded-lg p-3 text-white" onChange={e => setNewStaff({...newStaff, role: e.target.value})}>

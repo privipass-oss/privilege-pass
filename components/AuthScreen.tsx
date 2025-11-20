@@ -1,17 +1,26 @@
 
 import React, { useState } from 'react';
 import { Mail, Lock, User, Phone, ArrowRight, ArrowLeft } from 'lucide-react';
-import { AuthMode, Partner, Customer } from '../types';
+import { AuthMode, Partner, Customer, AdminUser } from '../types';
 import { LOGO_URL } from '../constants';
 
 interface AuthScreenProps {
   onAuthenticated: (role: 'client' | 'admin' | 'partner', user?: any) => void;
   onBack: () => void;
   partners?: Partner[];
-  customers?: Customer[]; // Added customers list for validation
+  customers?: Customer[];
+  staff?: AdminUser[];
+  adminProfile?: AdminUser;
 }
 
-export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated, onBack, partners = [], customers = [] }) => {
+export const AuthScreen: React.FC<AuthScreenProps> = ({ 
+  onAuthenticated, 
+  onBack, 
+  partners = [], 
+  customers = [], 
+  staff = [],
+  adminProfile 
+}) => {
   const [mode, setMode] = useState<AuthMode>('REGISTER');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -25,31 +34,46 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated, onBack,
     e.preventDefault();
     setLoading(true);
     
-    // Simulating API Call Latency
     setTimeout(() => {
       setLoading(false);
       
-      // 1. Check Admin
-      if (formData.email.includes('admin')) {
-        onAuthenticated('admin', { name: 'Administrador', email: formData.email });
-        return;
-      } 
+      const inputEmail = formData.email.toLowerCase().trim();
+      const inputPass = formData.password;
+
+      // 1. Check Main Admin (Real Verification)
+      if (adminProfile && inputEmail === adminProfile.email.toLowerCase()) {
+          if (inputPass === adminProfile.password) {
+             onAuthenticated('admin', adminProfile);
+          } else {
+             alert("Senha de administrador incorreta.");
+          }
+          return;
+      }
+
+      // 2. Check Staff Members
+      const foundStaff = staff.find(s => s.email.toLowerCase() === inputEmail);
+      if (foundStaff) {
+          if (foundStaff.password && foundStaff.password === inputPass) {
+              onAuthenticated('admin', foundStaff);
+          } else {
+              alert("Senha de equipe incorreta.");
+          }
+          return;
+      }
       
-      // 2. Check Partner (Real Lookup)
-      const foundPartner = partners.find(p => p.email.toLowerCase() === formData.email.toLowerCase());
+      // 3. Check Partner
+      const foundPartner = partners.find(p => p.email.toLowerCase() === inputEmail);
       if (foundPartner) {
         onAuthenticated('partner', foundPartner);
         return;
       }
       
-      // 3. Client Login Validation
+      // 4. Client Login Validation
       if (mode === 'LOGIN') {
-          // Find customer in the list passed from App
-          const foundCustomer = customers.find(c => c.email.toLowerCase() === formData.email.toLowerCase());
+          const foundCustomer = customers.find(c => c.email.toLowerCase() === inputEmail);
           
           if (foundCustomer) {
-              // In a real app, verify password hash. Here we compare simple string if it exists.
-              if (foundCustomer.password && foundCustomer.password !== formData.password) {
+              if (foundCustomer.password && foundCustomer.password !== inputPass) {
                   alert("Senha incorreta.");
                   return;
               }
@@ -58,22 +82,19 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated, onBack,
               alert("Cliente não encontrado. Verifique o e-mail ou cadastre-se.");
           }
       } else {
-          // Register Mode (Public)
-          const exists = customers.find(c => c.email.toLowerCase() === formData.email.toLowerCase());
+          // Register Mode
+          const exists = customers.find(c => c.email.toLowerCase() === inputEmail);
           if(exists) {
               alert("Este e-mail já está cadastrado. Faça login.");
               setMode('LOGIN');
               return;
           }
           
-          // Create new client session (App will handle persistence if needed, but usually public reg adds to list)
-          // Note: In this mock, public registration doesn't add to App state automatically unless we lift it, 
-          // but for now we log them in as a new user.
           onAuthenticated('client', { 
               name: formData.name || 'Visitante', 
               email: formData.email,
               vouchers: [],
-              password: formData.password // Store for session
+              password: formData.password 
           });
       }
 
@@ -82,7 +103,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated, onBack,
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-6 relative overflow-hidden">
-      {/* Background Ambient */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-zinc-800/20 rounded-full blur-[120px] pointer-events-none"></div>
 
@@ -191,10 +211,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated, onBack,
         </div>
       </div>
 
-      {/* Footer Text */}
       <div className="absolute bottom-6 text-center w-full px-4">
         <p className="text-zinc-700 text-[10px] md:text-xs">
-          Acesso Admin: admin@... | Acesso Parceiro: Use o email cadastrado
+          Acesso Admin: {adminProfile?.email} | Acesso Parceiro: Use o email cadastrado
         </p>
       </div>
     </div>

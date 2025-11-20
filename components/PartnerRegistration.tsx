@@ -28,6 +28,22 @@ export const PartnerRegistration: React.FC<PartnerRegistrationProps> = ({ onBack
   const prefix = category === 'Motorista' ? 'DRIVER-' : 'VIP-';
   const fullCoupon = prefix + (formData.couponSuffix.toUpperCase().replace(/[^A-Z0-9]/g, ''));
 
+  // Phone Mask Helper
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (value.length > 11) value = value.slice(0, 11); // Limit to 11 chars
+    
+    // Apply mask (XX) XXXXX-XXXX
+    if (value.length > 2) {
+        value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    }
+    if (value.length > 10) {
+        value = `${value.slice(0, 10)}-${value.slice(10)}`;
+    }
+    
+    setFormData({ ...formData, phone: value });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -161,17 +177,21 @@ export const PartnerRegistration: React.FC<PartnerRegistrationProps> = ({ onBack
                         <label className="text-xs font-bold text-zinc-500 uppercase">Nome Completo</label>
                         <input required type="text" 
                            className="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-gold-500/50 outline-none" 
-                           placeholder="Seu nome"
+                           placeholder="Nome e Sobrenome"
+                           value={formData.name}
                            onChange={e => setFormData({...formData, name: e.target.value})}
                         />
+                        <p className="text-[10px] text-zinc-600">Como você será identificado na plataforma.</p>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-xs font-bold text-zinc-500 uppercase">Email</label>
+                        <label className="text-xs font-bold text-zinc-500 uppercase">Email (Login)</label>
                         <input required type="email" 
                            className="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-gold-500/50 outline-none" 
                            placeholder="seu@email.com"
+                           value={formData.email}
                            onChange={e => setFormData({...formData, email: e.target.value})}
                         />
+                        <p className="text-[10px] text-zinc-600">Use um e-mail válido para receber notificações.</p>
                     </div>
                   </div>
 
@@ -181,17 +201,22 @@ export const PartnerRegistration: React.FC<PartnerRegistrationProps> = ({ onBack
                         <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-1"><Phone size={12}/> WhatsApp / Celular</label>
                         <input required type="tel" 
                            className="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-gold-500/50 outline-none" 
-                           placeholder="(11) 99999-9999"
-                           onChange={e => setFormData({...formData, phone: e.target.value})}
+                           placeholder="(XX) 9XXXX-XXXX"
+                           value={formData.phone}
+                           onChange={handlePhoneChange}
+                           maxLength={15}
                         />
+                        <p className="text-[10px] text-zinc-600">Ex: (11) 99999-9999</p>
                      </div>
                      <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-500 uppercase flex items-center gap-1"><Instagram size={12}/> Instagram</label>
                         <input required type="text" 
                            className="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-gold-500/50 outline-none" 
                            placeholder="@seu.perfil"
+                           value={formData.instagram}
                            onChange={e => setFormData({...formData, instagram: e.target.value})}
                         />
+                        <p className="text-[10px] text-zinc-600">Perfil público para validação.</p>
                      </div>
                   </div>
                   
@@ -200,10 +225,11 @@ export const PartnerRegistration: React.FC<PartnerRegistrationProps> = ({ onBack
                         <label className="text-xs font-bold text-emerald-500 uppercase flex items-center gap-2"><CreditCard size={14}/> Chave PIX (Para Recebimento)</label>
                         <input required type="text" 
                            className="w-full bg-black border border-emerald-500/30 rounded-xl p-3 text-white focus:border-emerald-500 outline-none" 
-                           placeholder="CPF, Email ou Telefone"
+                           placeholder="CPF, Email, Telefone ou Aleatória"
+                           value={formData.pixKey}
                            onChange={e => setFormData({...formData, pixKey: e.target.value})}
                         />
-                        <p className="text-[10px] text-zinc-500 text-right">O pagamento é feito automaticamente nesta chave.</p>
+                        <p className="text-[10px] text-zinc-500 text-right">Certifique-se que a chave está correta para receber pagamentos.</p>
                       </div>
                   </div>
 
@@ -223,7 +249,7 @@ export const PartnerRegistration: React.FC<PartnerRegistrationProps> = ({ onBack
                          />
                      </div>
                      <p className="text-[10px] text-zinc-500">
-                         Seu cupom final será: <span className="text-white font-bold">{fullCoupon}</span>
+                         Seu cupom final será: <span className="text-white font-bold">{fullCoupon}</span>. Seus clientes terão 5% de desconto com ele.
                      </p>
                   </div>
 

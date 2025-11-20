@@ -65,7 +65,13 @@ export default function App() {
     loadFromStorage('pp_staff', [])
   );
   const [adminProfile, setAdminProfile] = useState<Partial<AdminUser>>(() => 
-    loadFromStorage('pp_admin_profile', { name: 'Admin Principal', email: 'privi.pass@gmail.com', role: 'Admin', avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000' })
+    loadFromStorage('pp_admin_profile', { 
+      name: 'Admin Principal', 
+      email: 'privi.pass@gmail.com', 
+      role: 'Admin', 
+      avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000',
+      password: 'admin' // Default Password
+    })
   );
 
   // Salvar automaticamente no Storage
@@ -277,7 +283,7 @@ export default function App() {
             </div>
          </div>
          <div className="absolute bottom-10 text-zinc-600 text-[10px] font-mono">
-            v3.2.1 • Storage Active
+            v3.2.2 • Production Ready
          </div>
       </div>
     );
@@ -305,7 +311,9 @@ export default function App() {
             onAuthenticated={handleAuthenticated} 
             onBack={() => setAppMode('LANDING')} 
             partners={partners} 
-            customers={customers} 
+            customers={customers}
+            staff={staffMembers}
+            adminProfile={adminProfile as AdminUser} // Pass Admin Profile
         />
     );
   }

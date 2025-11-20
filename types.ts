@@ -80,6 +80,7 @@ export interface AdminUser {
   role: 'Admin' | 'Suporte' | 'Financeiro';
   avatarUrl: string;
   lastActive: string;
+  password?: string;
 }
 
 export interface MarketingAsset {
