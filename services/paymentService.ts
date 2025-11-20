@@ -1,13 +1,25 @@
 
 import { VoucherPack, Customer } from '../types';
 
-const MP_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || 'TEST-6568746972174334-091613-02699308012705124069299634609153-169458457'; // Coloque sua chave real no .env
+// ==============================================================================
+// 🔐 CONFIGURAÇÃO DO MERCADO PAGO
+// ==============================================================================
+// Chaves configuradas para o ambiente de teste/produção conforme solicitado.
+// ==============================================================================
+
+export const MP_ACCESS_TOKEN = process.env.REACT_APP_MP_ACCESS_TOKEN || 'APP_USR-3954676780837934-092919-c2fbb1d054bc8edf42d5fa2dc190b0db-2721762634';
+export const MP_PUBLIC_KEY = process.env.REACT_APP_MP_PUBLIC_KEY || 'APP_USR-497689e2-1b8d-4b99-8683-1a60862d2fea';
+
+// ==============================================================================
 
 export const createMercadoPagoPreference = async (pack: VoucherPack, user: Customer) => {
   try {
-    // URL de retorno (Onde o cliente volta após pagar)
-    // Em produção, mude para seu domínio real (ex: https://privilegepass.com)
+    // URL dinâmica do seu site (funciona em localhost e produção)
     const returnUrl = window.location.origin;
+
+    // Tratamento do CPF (Remove formatação)
+    // Em produção, é ideal pedir o CPF no cadastro. Aqui usamos um genérico de teste se não houver.
+    const cleanCPF = "19119119100"; 
 
     const preferenceData = {
       items: [
@@ -15,23 +27,23 @@ export const createMercadoPagoPreference = async (pack: VoucherPack, user: Custo
           id: pack.id,
           title: `Privilege Pass - ${pack.name}`,
           description: pack.description,
-          picture_url: 'https://i.imgur.com/LDoOqS8.png', // Logo para o checkout
+          picture_url: 'https://i.imgur.com/LDoOqS8.png', // Logo do Privilege Pass
           quantity: 1,
           currency_id: 'BRL',
-          unit_price: pack.price
+          unit_price: Number(pack.price)
         }
       ],
       payer: {
-        name: user.name.split(' ')[0],
-        surname: user.name.split(' ').slice(1).join(' ') || 'Cliente',
+        name: user.name.split(' ')[0] || 'Cliente',
+        surname: user.name.split(' ').slice(1).join(' ') || 'Vip',
         email: user.email,
         phone: {
-            area_code: user.phone ? user.phone.substring(0,2) : '11',
-            number: user.phone ? Number(user.phone.substring(2)) : 999999999
+            area_code: user.phone && user.phone.length > 2 ? user.phone.substring(0,2) : '11',
+            number: user.phone && user.phone.length > 2 ? Number(user.phone.replace(/\D/g,'').substring(2)) : 999999999
         },
         identification: {
             type: "CPF",
-            number: "19119119100" // O MercadoPago exige CPF válido em produção. O ideal é pedir no cadastro.
+            number: cleanCPF
         }
       },
       back_urls: {
@@ -40,16 +52,17 @@ export const createMercadoPagoPreference = async (pack: VoucherPack, user: Custo
         pending: `${returnUrl}/?status=pending`
       },
       auto_return: "approved",
-      statement_descriptor: "PRIVILEGEPASS",
-      external_reference: `ORDER-${Date.now()}-${user.id}`, // ID único do pedido
+      statement_descriptor: "PRIVILEGE",
+      external_reference: `ORDER-${Date.now()}-${user.id}`,
       payment_methods: {
           excluded_payment_types: [
-              { id: "ticket" } // Remove boleto se quiser aprovação imediata
+              { id: "ticket" } // Remove boleto para aprovação mais rápida (opcional)
           ],
-          installments: 12
+          installments: 12 // Permite até 12x
       }
     };
 
+    // Chamada à API do Mercado Pago
     const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
@@ -62,14 +75,15 @@ export const createMercadoPagoPreference = async (pack: VoucherPack, user: Custo
     const data = await response.json();
 
     if (!response.ok) {
-        console.error('MP Error:', data);
-        throw new Error(data.message || 'Erro ao criar preferência de pagamento');
+        console.error('Erro MP:', data);
+        throw new Error(data.message || 'Falha ao criar link de pagamento');
     }
 
-    return data.init_point; // URL para redirecionar o cliente
+    // Retorna o link de checkout (init_point)
+    return data.init_point; 
 
   } catch (error) {
-    console.error('Erro no pagamento:', error);
+    console.error('Erro no serviço de pagamento:', error);
     throw error;
   }
 };

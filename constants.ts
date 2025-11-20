@@ -1,6 +1,6 @@
 
 // ... (imports remain)
-import { Customer, ChartDataPoint, ActivityLog, VoucherPack, AnalyticsData, FlightStatus, PartnerBenefit, Partner, PartnerTransaction, MarketingAsset } from './types';
+import { Customer, ChartDataPoint, ActivityLog, VoucherPack, AnalyticsData, FlightStatus, PartnerBenefit, Partner, PartnerTransaction, MarketingAsset, FAQItem } from './types';
 
 // --- CONFIGURAÇÃO DE MARCA ---
 export const LOGO_URL = "https://placehold.co/400x400/000000/D4AF37?text=P+P"; 
@@ -20,6 +20,69 @@ export const PARTNER_BENEFITS: PartnerBenefit[] = [
   { id: '2', name: 'Dufry Duty Free', description: 'Desconto em perfumes e bebidas selecionadas.', discount: '15% OFF', image: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?q=80&w=1000&auto=format&fit=crop', category: 'Shopping', code: 'VIPDUFRY15' },
   { id: '3', name: 'Fasano Hotels', description: 'Upgrade de quarto mediante disponibilidade.', discount: 'Upgrade', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000&auto=format&fit=crop', category: 'Hospedagem', code: 'FASANOPRIV' },
   { id: '4', name: 'Sixt Rent a Car', description: 'Locação de carros de luxo com seguro incluso.', discount: '20% OFF', image: 'https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=1000&auto=format&fit=crop', category: 'Transporte', code: 'SIXT20VIP' }
+];
+
+export const INITIAL_FAQS: FAQItem[] = [
+    {
+        id: '1',
+        category: 'Geral',
+        question: "Como utilizo meu Privilege Pass na sala VIP?",
+        answer: "É simples. Ao chegar na recepção da sala VIP parceira (rede Dragon Pass), abra seu painel no celular, vá em 'Meus Vouchers', clique no voucher ativo e apresente o QR Code para a recepcionista. Ela irá escanear e liberar sua entrada imediatamente."
+    },
+    {
+        id: '2',
+        category: 'Acesso',
+        question: "Posso levar acompanhantes?",
+        answer: "Sim. Se você possui um pacote com múltiplos acessos (ex: Privilege Family), você pode utilizar seus créditos para liberar a entrada de acompanhantes. Cada pessoa consumirá 1 acesso do seu saldo total. O titular do voucher deve estar presente no momento do acesso."
+    },
+    {
+        id: '3',
+        category: 'Geral',
+        question: "Qual a validade dos meus acessos?",
+        answer: "Seus créditos são válidos por 12 meses (1 ano) a partir da data da compra. Você pode utilizá-los em qualquer data dentro deste período, inclusive em feriados."
+    },
+    {
+        id: '4',
+        category: 'Acesso',
+        question: "Crianças pagam acesso?",
+        answer: "A política varia de sala para sala. Geralmente, crianças até 2 anos não pagam. Acima dessa idade, contam como um acesso normal. Recomendamos verificar a regra específica da sala no nosso Travel Hub ou com o Concierge."
+    },
+    {
+        id: '5',
+        category: 'Acesso',
+        question: "Existe Dress Code (Código de Vestimenta)?",
+        answer: "A maioria das salas VIP exige traje 'Smart Casual'. Chinelos de praia, regatas e roupas de banho geralmente não são permitidos. Tênis e jeans são aceitos na maioria dos lounges."
+    },
+    {
+        id: '6',
+        category: 'Financeiro',
+        question: "Posso cancelar minha compra?",
+        answer: "Sim. Garantimos o reembolso integral em até 7 dias após a compra, desde que o voucher não tenha sido utilizado. Entre em contato com nosso suporte para solicitar o estorno."
+    },
+    {
+        id: '7',
+        category: 'Técnico',
+        question: "O voucher é aceito em todas as salas do aeroporto?",
+        answer: "O Privilege Pass é aceito na rede Dragon Pass, que engloba a maioria das salas globais (+1300), mas não necessariamente todas de um terminal. Utilize nossa ferramenta 'Travel Hub' para confirmar quais salas são parceiras no seu aeroporto."
+    },
+    {
+        id: '8',
+        category: 'Técnico',
+        question: "O que faço se meu QR Code não for lido?",
+        answer: "Abaixo do QR Code existe um código numérico de 16 dígitos. Caso o scanner falhe, peça gentilmente para a recepcionista digitar este código manualmente no sistema Dragon Pass. Se o problema persistir, contate nosso suporte via WhatsApp imediatamente."
+    },
+    {
+        id: '9',
+        category: 'Financeiro',
+        question: "Emitem Nota Fiscal?",
+        answer: "Sim, a nota fiscal é emitida automaticamente após a confirmação do pagamento e enviada para o e-mail cadastrado em até 24 horas úteis."
+    },
+    {
+        id: '10',
+        category: 'Acesso',
+        question: "Posso sair e entrar novamente na sala?",
+        answer: "A maioria das salas permite reentrada dentro do período de estadia (geralmente 3 a 4 horas), mas isso fica a critério da recepção do lounge. Pergunte ao entrar."
+    }
 ];
 
 export const MOCK_PARTNERS: Partner[] = [
@@ -162,6 +225,7 @@ export const MENU_ITEMS = [
   { id: 'marketing', label: 'Kit de Divulgação', icon: 'Megaphone' },
   { id: 'benefits', label: 'Clube de Benefícios', icon: 'Gift' },
   { id: 'concierge', label: 'Concierge', icon: 'Plane' },
+  { id: 'faq', label: 'Gestão de FAQ', icon: 'HelpCircle' },
   { id: 'settings', label: 'Configurações', icon: 'Settings' },
 ];
 

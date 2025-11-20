@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-export type AppMode = 'LANDING' | 'AUTH' | 'CLIENT_AREA' | 'ADMIN_DASHBOARD' | 'PARTNER_REGISTER' | 'PARTNER_DASHBOARD';
+export type AppMode = 'LANDING' | 'AUTH' | 'CLIENT_AREA' | 'ADMIN_DASHBOARD' | 'PARTNER_REGISTER' | 'PARTNER_DASHBOARD' | 'SUPPORT';
 export type AuthMode = 'LOGIN' | 'REGISTER';
 
 export type VoucherType = 'Nacional' | 'Internacional';
@@ -83,6 +83,13 @@ export interface MarketingAsset {
   category: 'Stories' | 'Feed' | 'Documentos' | 'Copy';
 }
 
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  category?: 'Geral' | 'Acesso' | 'Financeiro' | 'Técnico';
+}
+
 export interface PaymentTransaction {
     id: string;
     customerId: string;
@@ -155,4 +162,4 @@ export interface FlightStatus {
   departureTime: string;
 }
 
-export type ViewState = 'dashboard' | 'members' | 'concierge' | 'settings' | 'analytics' | 'partners' | 'marketing' | 'benefits' | 'products';
+export type ViewState = 'dashboard' | 'members' | 'concierge' | 'settings' | 'analytics' | 'partners' | 'marketing' | 'benefits' | 'products' | 'travel-hub' | 'faq';

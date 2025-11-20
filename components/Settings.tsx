@@ -85,7 +85,7 @@ export const Settings: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                         <label className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Email de Acesso</label>
-                        <input type="email" defaultValue="admin@privilegepass.com" className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-amber-500/50 outline-none" />
+                        <input type="email" defaultValue="privi.pass@gmail.com" className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-amber-500/50 outline-none" />
                     </div>
                     <div className="pt-4 flex items-center justify-end gap-4">
                         {showSaveSuccess && (

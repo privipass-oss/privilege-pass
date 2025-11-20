@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, ShoppingBag, Plane, Settings, LogOut, BarChart3, Users, Gift, Tag, Megaphone } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Plane, Settings, LogOut, BarChart3, Users, Gift, Tag, Megaphone, HelpCircle } from 'lucide-react';
 import { MENU_ITEMS, LOGO_URL } from '../constants';
 import { ViewState } from '../types';
 
@@ -25,6 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isM
       case 'Gift': return <Gift size={22} />;
       case 'Tag': return <Tag size={22} />;
       case 'Megaphone': return <Megaphone size={22} />;
+      case 'HelpCircle': return <HelpCircle size={22} />;
       default: return <LayoutDashboard size={22} />;
     }
   };

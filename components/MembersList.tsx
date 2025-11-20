@@ -4,6 +4,7 @@ import { GlassCard } from './ui/GlassCard';
 import { Search, QrCode, X, CheckCircle, UploadCloud, Ban, UserPlus, Trash2, Edit, Smartphone, Image as ImageIcon, Eye, Printer, Hash, Download, Lock, AlertTriangle } from 'lucide-react';
 import { Customer, VoucherPack } from '../types';
 import { VoucherArt } from './ui/VoucherArt';
+import html2canvas from 'html2canvas';
 
 interface MembersListProps {
   customers: Customer[];
@@ -21,6 +22,7 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
   const [voucherToAttach, setVoucherToAttach] = useState<string>('');
   const [uploadedQrCode, setUploadedQrCode] = useState<string | null>(null);
   const [voucherCodeInput, setVoucherCodeInput] = useState<string>('');
+  const [isDownloading, setIsDownloading] = useState(false);
   
   // New Customer Modal
   const [isNewCustomerModalOpen, setIsNewCustomerModalOpen] = useState(false);
@@ -37,7 +39,6 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
 
   // PRINT FUNCTION
   const triggerPrint = () => {
-      console.log("🖨️ [DEBUG] Botão imprimir acionado...");
       try {
           setTimeout(() => {
             window.focus();
@@ -46,6 +47,37 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
       } catch (e) {
           console.error("Erro ao tentar imprimir:", e);
           alert("Erro ao abrir diálogo de impressão. Tente Ctrl+P.");
+      }
+  };
+
+  // DOWNLOAD IMAGE FUNCTION
+  const handleDownloadImage = async () => {
+      const element = document.getElementById('voucher-print-area');
+      if (!element) {
+          alert("Erro: Área do voucher não encontrada.");
+          return;
+      }
+      
+      setIsDownloading(true);
+      try {
+          const canvas = await html2canvas(element, {
+              useCORS: true,
+              allowTaint: false,
+              scale: 2, // Better quality
+              backgroundColor: '#000000'
+          });
+          
+          const link = document.createElement('a');
+          link.download = `Privilege-Voucher-${generatedVoucherData?.passengerName || 'Pass'}.png`;
+          link.href = canvas.toDataURL('image/png');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+      } catch (err) {
+          console.error("Download failed", err);
+          alert("Não foi possível gerar a imagem automaticamente. Por favor, use o botão 'Imprimir' e escolha 'Salvar como PDF'.");
+      } finally {
+          setIsDownloading(false);
       }
   };
 
@@ -103,9 +135,6 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
   const handleViewHistoryVoucher = (voucher: any) => {
       if (!selectedCustomer) return;
       
-      // If voucher is pending, we might want to allow editing/uploading, 
-      // but for now we just show it (it will show as pending art).
-      // Ideally, if pending, we should pre-fill the generator.
       if (voucher.status === 'Processando') {
          alert("Este voucher está pendente de emissão. Use o formulário à direita para anexar o QR Code e finalizar.");
          // Pre-select pack to help admin
@@ -152,16 +181,14 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
             id: Date.now().toString()
         };
         
-        // --- CRITICAL LOGIC UPDATE ---
-        // If we are fulfilling a pending voucher (same pack name and pending status), replace it
-        // Otherwise add new
+        // If we are fulfilling a pending voucher, replace it
         let updatedVouchers = [...(selectedCustomer.activeVouchers || [])];
         const pendingIndex = updatedVouchers.findIndex(v => v.status === 'Processando' && v.packName === pack?.name);
         
         if (pendingIndex >= 0) {
-            updatedVouchers[pendingIndex] = newVoucher; // Replace pending with active
+            updatedVouchers[pendingIndex] = newVoucher; 
         } else {
-            updatedVouchers.push(newVoucher); // Add new
+            updatedVouchers.push(newVoucher); 
         }
 
         onUpdateCustomer(selectedCustomer.id, { activeVouchers: updatedVouchers as any });
@@ -188,13 +215,22 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
           <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in overflow-auto">
               
               {/* Actions Toolbar */}
-              <div className="absolute top-8 right-8 flex gap-4 no-print z-50">
+              <div className="absolute top-4 right-4 md:top-8 md:right-8 flex flex-col md:flex-row gap-4 no-print z-50">
+                  <button 
+                    type="button"
+                    onClick={handleDownloadImage}
+                    disabled={isDownloading}
+                    className="px-6 py-3 bg-gradient-gold text-black rounded-xl hover:brightness-110 transition-all flex items-center gap-2 shadow-xl font-bold cursor-pointer disabled:opacity-50"
+                  >
+                      {isDownloading ? <span className="animate-spin w-5 h-5 border-2 border-black border-t-transparent rounded-full"></span> : <Download size={20} />}
+                      Baixar Imagem (PNG)
+                  </button>
                   <button 
                     type="button"
                     onClick={triggerPrint}
                     className="px-6 py-3 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors flex items-center gap-2 border border-white/10 shadow-xl font-bold cursor-pointer"
                   >
-                      <Printer size={20} /> Imprimir / Salvar PDF
+                      <Printer size={20} /> Imprimir PDF
                   </button>
                   <button 
                     type="button"
@@ -205,13 +241,10 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
                   </button>
               </div>
 
-              <div className="text-center mb-8 no-print mt-20 md:mt-0">
-                  <div className="flex justify-center mb-4">
-                      <CheckCircle size={64} className="text-emerald-500" />
-                  </div>
+              <div className="text-center mb-8 no-print mt-32 md:mt-0">
                   <h2 className="text-3xl font-bold text-white text-gradient-gold mb-2">Voucher Gerado</h2>
                   <p className="text-zinc-400 max-w-md mx-auto">
-                      Visualize abaixo a arte final. Use o botão imprimir para salvar como PDF.
+                      Clique em "Baixar Imagem" para enviar pelo WhatsApp ou Imprimir.
                   </p>
               </div>
 
@@ -330,14 +363,14 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
           </div>
       )}
 
-      {/* Manage Customer Modal (Layout Fixo no Topo + Scroll) */}
+      {/* Manage Customer Modal (SCROLLABLE FIXED OVERLAY) */}
       {selectedCustomer && (
         <div 
             className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md overflow-y-auto"
             onClick={() => setSelectedCustomer(null)}
         >
-            {/* Overlay que permite scroll */}
-            <div className="min-h-full flex items-start justify-center py-10 px-4" onClick={e => e.stopPropagation()}>
+            {/* Flex items-start prevents top cutoff */}
+            <div className="min-h-full flex items-start justify-center py-12 px-4" onClick={e => e.stopPropagation()}>
                 
                 {/* Modal Container */}
                 <div 

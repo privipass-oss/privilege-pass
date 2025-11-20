@@ -53,7 +53,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onChangeView }) => {
         </div>
         <div className="flex gap-3">
            <button 
-             onClick={() => navigate('concierge')} 
+             onClick={() => navigate('travel-hub')} 
              className="px-6 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl border border-white/10 text-sm font-medium transition-all shadow-lg flex items-center gap-2"
            >
              <Globe2 size={16} /> Rede Credenciada
@@ -255,7 +255,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onChangeView }) => {
                </div>
             </div>
             <div className="bg-zinc-950 p-6 w-full md:w-64 border-l border-white/5 flex items-center justify-center">
-               <button className="w-full py-3 border border-white/10 rounded-lg text-sm font-bold text-zinc-300 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center gap-2">
+               <button onClick={() => navigate('travel-hub')} className="w-full py-3 border border-white/10 rounded-lg text-sm font-bold text-zinc-300 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center gap-2">
                  <CheckCircle size={16} className="text-emerald-500" />
                  Status do Sistema
                </button>

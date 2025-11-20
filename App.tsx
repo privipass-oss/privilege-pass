@@ -10,15 +10,18 @@ import { PartnersManager } from './components/PartnersManager';
 import { BenefitsManager } from './components/BenefitsManager';
 import { ProductManager } from './components/ProductManager';
 import { MarketingManager } from './components/MarketingManager';
+import { FAQManager } from './components/FAQManager';
+import { TravelHub } from './components/TravelHub';
 import { Header } from './components/Header';
 import { LandingPage } from './components/LandingPage';
+import { SupportPage } from './components/SupportPage';
 import { AuthScreen } from './components/AuthScreen';
 import { ClientArea } from './components/ClientArea';
 import { PartnerRegistration } from './components/PartnerRegistration';
 import { PartnerArea } from './components/PartnerArea';
-import { AppMode, ViewState, PartnerBenefit, Partner, Customer, VoucherPack, MarketingAsset } from './types';
+import { AppMode, ViewState, PartnerBenefit, Partner, Customer, VoucherPack, MarketingAsset, FAQItem } from './types';
 import { ShieldCheck } from 'lucide-react';
-import { PARTNER_BENEFITS, MOCK_PARTNERS, LOGO_URL, MOCK_CUSTOMERS, VOUCHER_PACKS, MOCK_MARKETING_ASSETS } from './constants';
+import { PARTNER_BENEFITS, MOCK_PARTNERS, LOGO_URL, MOCK_CUSTOMERS, VOUCHER_PACKS, MOCK_MARKETING_ASSETS, INITIAL_FAQS } from './constants';
 
 // Helper para carregar do LocalStorage com fallback
 const loadFromStorage = <T,>(key: string, fallback: T): T => {
@@ -55,6 +58,9 @@ export default function App() {
   const [marketingAssets, setMarketingAssets] = useState<MarketingAsset[]>(() => 
     loadFromStorage('pp_marketing', MOCK_MARKETING_ASSETS)
   );
+  const [faqItems, setFaqItems] = useState<FAQItem[]>(() => 
+    loadFromStorage('pp_faq', INITIAL_FAQS)
+  );
 
   // Salvar automaticamente no Storage
   useEffect(() => { localStorage.setItem('pp_benefits', JSON.stringify(benefits)); }, [benefits]);
@@ -62,6 +68,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem('pp_customers', JSON.stringify(customers)); }, [customers]);
   useEffect(() => { localStorage.setItem('pp_products', JSON.stringify(products)); }, [products]);
   useEffect(() => { localStorage.setItem('pp_marketing', JSON.stringify(marketingAssets)); }, [marketingAssets]);
+  useEffect(() => { localStorage.setItem('pp_faq', JSON.stringify(faqItems)); }, [faqItems]);
 
   // Persistência da Sessão
   useEffect(() => {
@@ -91,7 +98,7 @@ export default function App() {
   }, []); 
 
   useEffect(() => {
-      if (currentUser && appMode !== 'LANDING' && appMode !== 'AUTH') {
+      if (currentUser && appMode !== 'LANDING' && appMode !== 'AUTH' && appMode !== 'SUPPORT') {
           localStorage.setItem('pp_session', JSON.stringify({ mode: appMode, user: currentUser }));
       }
   }, [currentUser, appMode]);
@@ -222,6 +229,17 @@ export default function App() {
       setMarketingAssets(marketingAssets.filter(a => a.id !== id));
   };
 
+  // --- FAQ MANAGEMENT ---
+  const handleAddFAQ = (item: FAQItem) => {
+      setFaqItems([...faqItems, item]);
+  };
+  const handleUpdateFAQ = (item: FAQItem) => {
+      setFaqItems(faqItems.map(f => f.id === item.id ? item : f));
+  };
+  const handleRemoveFAQ = (id: string) => {
+      setFaqItems(faqItems.filter(f => f.id !== id));
+  };
+
   // Boot Screen
   if (isBooting) {
     return (
@@ -249,7 +267,18 @@ export default function App() {
 
   // Render Logic
   if (appMode === 'LANDING') {
-    return <LandingPage onGetStarted={handleGetStarted} onPartnerClick={handlePartnerRegister} onPartnerLogin={handlePartnerLoginClick} />;
+    return <LandingPage 
+        onGetStarted={handleGetStarted} 
+        onPartnerClick={handlePartnerRegister} 
+        onPartnerLogin={handlePartnerLoginClick} 
+        products={products}
+        faqItems={faqItems}
+        onViewSupport={() => setAppMode('SUPPORT')} // Add navigation
+    />;
+  }
+
+  if (appMode === 'SUPPORT') {
+      return <SupportPage items={faqItems} onBack={() => setAppMode('LANDING')} />;
   }
 
   if (appMode === 'AUTH') {
@@ -264,7 +293,7 @@ export default function App() {
   }
 
   if (appMode === 'CLIENT_AREA') {
-    return <ClientArea onLogout={handleLogout} user={currentUser} benefits={benefits} onUpdateUser={handleUpdateCustomer} />;
+    return <ClientArea onLogout={handleLogout} user={currentUser} benefits={benefits} onUpdateUser={handleUpdateCustomer} faqItems={faqItems} />;
   }
 
   if (appMode === 'PARTNER_REGISTER') {
@@ -299,6 +328,13 @@ export default function App() {
       case 'marketing': return <MarketingManager assets={marketingAssets} onAdd={handleAddMarketingAsset} onRemove={handleRemoveMarketingAsset} />;
       case 'concierge': return <Concierge />;
       case 'settings': return <Settings />;
+      case 'faq': return <FAQManager items={faqItems} onAdd={handleAddFAQ} onUpdate={handleUpdateFAQ} onRemove={handleRemoveFAQ} />;
+      case 'travel-hub': return (
+        <div className="p-8 h-full overflow-y-auto pb-20">
+          <h2 className="text-3xl font-display font-bold text-white mb-6">Rede Credenciada & Tools</h2>
+          <TravelHub />
+        </div>
+      );
       default: return <Dashboard onChangeView={setAdminView} />;
     }
   };

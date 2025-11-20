@@ -1,28 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
-import { LogOut, QrCode, CheckCircle, MessageCircle, CreditCard, Sparkles, Plane, Smartphone, Gift, Copy, AlertTriangle, Lock, Printer, X, ZoomIn, Loader2 } from 'lucide-react';
+import { LogOut, QrCode, CheckCircle, MessageCircle, CreditCard, Sparkles, Plane, Smartphone, Gift, Copy, AlertTriangle, Lock, Printer, X, ZoomIn, Loader2, Download, HelpCircle } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { TravelHub } from './TravelHub';
 import { Concierge } from './Concierge';
-import { VOUCHER_PACKS, PARTNER_BENEFITS, LOGO_URL } from '../constants';
-import { VoucherPack, VoucherType, Customer, PartnerBenefit } from '../types';
+import { HelpCenter } from './HelpCenter';
+import { VOUCHER_PACKS, PARTNER_BENEFITS, LOGO_URL, INITIAL_FAQS } from '../constants';
+import { VoucherPack, VoucherType, Customer, PartnerBenefit, FAQItem } from '../types';
 import { VoucherArt } from './ui/VoucherArt';
 import { createMercadoPagoPreference } from '../services/paymentService';
+import html2canvas from 'html2canvas';
 
 interface ClientAreaProps {
   onLogout: () => void;
   user?: Customer; 
   benefits?: PartnerBenefit[];
   onUpdateUser?: (id: string, data: Partial<Customer>) => void;
+  faqItems?: FAQItem[]; // Add FAQ Items prop
 }
 
-export const ClientArea: React.FC<ClientAreaProps> = ({ onLogout, user, benefits = PARTNER_BENEFITS, onUpdateUser }) => {
-  const [activeTab, setActiveTab] = useState<'my-vouchers' | 'buy' | 'travel-hub' | 'concierge' | 'benefits'>('buy');
+export const ClientArea: React.FC<ClientAreaProps> = ({ onLogout, user, benefits = PARTNER_BENEFITS, onUpdateUser, faqItems = INITIAL_FAQS }) => {
+  const [activeTab, setActiveTab] = useState<'my-vouchers' | 'buy' | 'travel-hub' | 'concierge' | 'benefits' | 'help'>('buy');
   const [activeCategory, setActiveCategory] = useState<VoucherType>('Internacional');
   const [notification, setNotification] = useState<string | null>(null);
   
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [viewVoucher, setViewVoucher] = useState<any | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Normalize user data
   const currentUser: Customer = user ? {
@@ -51,10 +55,6 @@ export const ClientArea: React.FC<ClientAreaProps> = ({ onLogout, user, benefits
         const pack = VOUCHER_PACKS.find(p => p.id === packId);
         
         if (pack) {
-            // 2. Verificar se já processamos este pedido (evitar duplicidade no reload)
-            // Em produção, usaríamos o external_reference para isso.
-            // Aqui, limpamos a URL rapidamente.
-            
             const newVoucher = {
                 id: Date.now().toString(),
                 packName: pack.name,
@@ -122,6 +122,33 @@ export const ClientArea: React.FC<ClientAreaProps> = ({ onLogout, user, benefits
       }
   };
 
+  const handleDownloadImage = async () => {
+      const element = document.getElementById('voucher-print-area');
+      if (!element) return;
+      
+      setIsDownloading(true);
+      try {
+          const canvas = await html2canvas(element, {
+              useCORS: true,
+              allowTaint: false,
+              scale: 2,
+              backgroundColor: '#000000'
+          });
+          
+          const link = document.createElement('a');
+          link.download = `Voucher-${currentUser.name}.png`;
+          link.href = canvas.toDataURL('image/png');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+      } catch (err) {
+          console.error(err);
+          alert("Erro ao baixar. Use a opção de imprimir.");
+      } finally {
+          setIsDownloading(false);
+      }
+  };
+
   if (isRedirecting) {
       return (
           <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 animate-fade-in">
@@ -139,7 +166,16 @@ export const ClientArea: React.FC<ClientAreaProps> = ({ onLogout, user, benefits
       {/* VIEW VOUCHER MODAL */}
       {viewVoucher && (
           <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in">
-              <div className="absolute top-4 right-4 md:top-8 md:right-8 flex gap-4 no-print z-50">
+              <div className="absolute top-4 right-4 md:top-8 md:right-8 flex flex-col md:flex-row gap-4 no-print z-50">
+                  <button 
+                    type="button"
+                    onClick={handleDownloadImage}
+                    disabled={isDownloading}
+                    className="px-6 py-3 bg-gradient-gold text-black rounded-xl hover:brightness-110 transition-all flex items-center gap-2 shadow-xl font-bold cursor-pointer disabled:opacity-50"
+                  >
+                      {isDownloading ? <span className="animate-spin w-5 h-5 border-2 border-black border-t-transparent rounded-full"></span> : <Download size={20} />}
+                      Baixar Imagem (PNG)
+                  </button>
                   <button 
                     type="button"
                     onClick={triggerPrint}
@@ -193,6 +229,7 @@ export const ClientArea: React.FC<ClientAreaProps> = ({ onLogout, user, benefits
             { id: 'concierge', label: 'Concierge', icon: MessageCircle },
             { id: 'travel-hub', label: 'Travel Hub', icon: Plane },
             { id: 'benefits', label: 'Benefícios', icon: Gift },
+            { id: 'help', label: 'Ajuda / FAQ', icon: HelpCircle },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`pb-4 text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all relative ${activeTab === tab.id ? 'text-gold-500' : 'text-zinc-500 hover:text-white'}`}>
               <tab.icon size={16} /> {tab.label}
@@ -204,6 +241,7 @@ export const ClientArea: React.FC<ClientAreaProps> = ({ onLogout, user, benefits
         {/* CONTENT AREAS */}
         {activeTab === 'concierge' && <div className="h-[calc(100vh-200px)] rounded-2xl overflow-hidden border border-white/10 bg-zinc-900/50"><Concierge /></div>}
         {activeTab === 'travel-hub' && <TravelHub />}
+        {activeTab === 'help' && <HelpCenter items={faqItems} />}
         {activeTab === 'benefits' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                {benefits.map(benefit => (

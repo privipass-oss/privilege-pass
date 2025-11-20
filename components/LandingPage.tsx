@@ -1,18 +1,22 @@
 
 import React, { useState } from 'react';
-import { Globe2, CheckCircle, Star, ArrowRight, ShieldCheck, Menu, X, MapPin, Plane, MessageCircle, Quote, Crown, User, AlertCircle } from 'lucide-react';
-import { VOUCHER_PACKS, TOP_LOUNGES, TESTIMONIALS, LOGO_URL } from '../constants';
+import { Globe2, CheckCircle, Star, ArrowRight, ShieldCheck, Menu, X, MapPin, Plane, MessageCircle, Quote, Crown, User, AlertCircle, HelpCircle, Mail, Phone, ExternalLink } from 'lucide-react';
+import { VOUCHER_PACKS, TOP_LOUNGES, TESTIMONIALS, LOGO_URL, INITIAL_FAQS } from '../constants';
 import { GlassCard } from './ui/GlassCard';
-import { VoucherType } from '../types';
+import { VoucherType, VoucherPack, FAQItem } from '../types';
 import { Concierge } from './Concierge';
+import { HelpCenter } from './HelpCenter';
 
 interface LandingPageProps {
   onGetStarted: () => void;
   onPartnerClick?: () => void;
   onPartnerLogin?: () => void;
+  onViewSupport?: () => void;
+  products?: VoucherPack[]; // Use real products
+  faqItems?: FAQItem[]; // Use real FAQs
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onPartnerClick, onPartnerLogin }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onPartnerClick, onPartnerLogin, onViewSupport, products = VOUCHER_PACKS, faqItems = INITIAL_FAQS }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isConciergeOpen, setIsConciergeOpen] = useState(false);
   const [voucherType, setVoucherType] = useState<VoucherType>('Nacional');
@@ -72,6 +76,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onPartne
             <button onClick={() => scrollToSection('beneficios')} className="hover:text-gold-400 transition-colors">Benefícios</button>
             <button onClick={() => scrollToSection('rede')} className="hover:text-gold-400 transition-colors">Salas VIP</button>
             <button onClick={() => scrollToSection('vouchers')} className="hover:text-gold-400 transition-colors">Pacotes</button>
+            <button onClick={() => scrollToSection('faq')} className="hover:text-gold-400 transition-colors">Dúvidas</button>
             <button 
               onClick={onPartnerLogin} 
               className="hover:text-gold-400 transition-colors flex items-center gap-1"
@@ -102,6 +107,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onPartne
             <button onClick={() => scrollToSection('beneficios')} className="text-left text-lg text-zinc-300 py-4 border-b border-white/5">Benefícios</button>
             <button onClick={() => scrollToSection('rede')} className="text-left text-lg text-zinc-300 py-4 border-b border-white/5">Salas VIP</button>
             <button onClick={() => scrollToSection('vouchers')} className="text-left text-lg text-zinc-300 py-4 border-b border-white/5">Valores</button>
+            <button onClick={() => scrollToSection('faq')} className="text-left text-lg text-zinc-300 py-4 border-b border-white/5">Dúvidas</button>
             <button onClick={() => { setIsMobileMenuOpen(false); onPartnerLogin && onPartnerLogin(); }} className="text-left text-lg text-zinc-300 py-4 border-b border-white/5">Área do Parceiro</button>
             
             <button 
@@ -288,11 +294,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onPartne
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {VOUCHER_PACKS.filter(p => p.type === voucherType).map((pack) => (
+            {products.filter(p => p.type === voucherType).map((pack) => (
               <GlassCard 
                 key={pack.id} 
                 className={`
                   flex flex-col relative transition-all duration-500 hover:-translate-y-3
+                  ${pack.isActive === false ? 'opacity-50 grayscale pointer-events-none' : ''}
                   ${pack.accessCount === 4 
                     ? 'border-gold-500/50 shadow-[0_0_50px_rgba(212,175,55,0.15)] bg-zinc-900/80' 
                     : 'hover:border-white/20'}
@@ -373,10 +380,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onPartne
          </div>
       </section>
 
+      {/* FAQ Section */}
+      <section id="faq" className="py-20 bg-black border-t border-white/5">
+          <div className="max-w-5xl mx-auto px-6">
+              <div className="text-center mb-12">
+                  <h2 className="text-3xl font-display font-bold text-white mb-4 flex items-center justify-center gap-2">
+                      <HelpCircle className="text-gold-500" /> Dúvidas Frequentes
+                  </h2>
+                  <p className="text-zinc-400">Perguntas mais comuns. Para ver todas, acesse a central.</p>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-8 mb-8">
+                  <HelpCenter items={faqItems.slice(0, 4)} />
+              </div>
+
+              {onViewSupport && (
+                 <div className="text-center">
+                    <button 
+                       onClick={onViewSupport}
+                       className="px-8 py-3 bg-zinc-900 hover:bg-zinc-800 text-white border border-white/10 rounded-xl font-bold transition-all flex items-center gap-2 mx-auto shadow-lg"
+                    >
+                       <ExternalLink size={18} /> Acessar Central de Ajuda Completa
+                    </button>
+                 </div>
+              )}
+          </div>
+      </section>
+
       {/* B2B & Partners Section */}
-      <section className="py-20 bg-black border-t border-white/5">
+      <section className="py-20 bg-zinc-900 border-t border-white/5">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
               <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gold-500/10 rounded-full blur-[100px] pointer-events-none"></div>
               
               <div className="relative z-10">
@@ -406,13 +440,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onPartne
       </section>
 
       {/* Footer */}
-      <footer className="bg-zinc-950 py-16 border-t border-white/5">
+      <footer className="bg-black py-16 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-3">
              <img src={LOGO_URL} alt="Privilege Pass" className="w-8 h-8 rounded border border-gold-500/30 object-cover" />
              <span className="font-bold text-xl text-white tracking-tight">PRIVILEGE PASS</span>
           </div>
-          <p className="text-zinc-600 text-sm">© 2024 Privilege Pass Global. Todos os direitos reservados.</p>
+          
+          <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex flex-col items-center md:items-end text-zinc-600 text-sm">
+                  <div className="flex items-center gap-2 mb-1">
+                      <Phone size={14} /> <span>Suporte: (21) 92022-2269</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                      <Mail size={14} /> <span>privi.pass@gmail.com</span>
+                  </div>
+              </div>
+              <p className="text-zinc-600 text-sm">© 2024 Privilege Pass Global. Todos os direitos reservados.</p>
+          </div>
         </div>
       </footer>
     </div>
