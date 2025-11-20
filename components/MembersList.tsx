@@ -333,11 +333,11 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
         ))}
       </div>
 
-      {/* Create Customer Modal - FIX: Uses flex-start/overflow-auto to prevent clipping */}
+      {/* Create Customer Modal - FIXED HEIGHT AND SCROLL */}
       {isNewCustomerModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setIsNewCustomerModalOpen(false)}>
-              <div className="min-h-full flex items-start justify-center py-20 px-4">
-                  <div className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="min-h-full flex items-center justify-center p-4">
+                  <div className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full relative shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                       <button onClick={() => setIsNewCustomerModalOpen(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X /></button>
                       <h3 className="text-xl font-bold text-white mb-6">Cadastro Manual</h3>
                       <form onSubmit={handleCreateCustomer} className="space-y-4">
