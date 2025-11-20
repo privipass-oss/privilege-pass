@@ -77,75 +77,78 @@ export const BenefitsManager: React.FC<BenefitsManagerProps> = ({ benefits, onAd
         ))}
       </div>
 
+      {/* Add Modal - FIXED LAYOUT SCROLL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-white">Adicionar Parceiro</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white"><X /></button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase">Nome do Parceiro</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                  onChange={e => setNewBenefit({...newBenefit, name: e.target.value})}
-                />
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setIsModalOpen(false)}>
+          <div className="min-h-full flex items-start justify-center p-4 py-12">
+            <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-white">Adicionar Parceiro</h3>
+                <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white"><X /></button>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              
+              <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-bold text-zinc-500 uppercase">Desconto (Ex: 20% OFF)</label>
+                  <label className="text-xs font-bold text-zinc-500 uppercase">Nome do Parceiro</label>
                   <input 
                     type="text" 
                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                    onChange={e => setNewBenefit({...newBenefit, discount: e.target.value})}
+                    onChange={e => setNewBenefit({...newBenefit, name: e.target.value})}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 uppercase">Desconto (Ex: 20% OFF)</label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                      onChange={e => setNewBenefit({...newBenefit, discount: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-500 uppercase">Código Cupom</label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                      onChange={e => setNewBenefit({...newBenefit, code: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 uppercase">Categoria</label>
+                  <select 
+                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                    onChange={e => setNewBenefit({...newBenefit, category: e.target.value as any})}
+                  >
+                    <option value="Shopping">Shopping</option>
+                    <option value="Transporte">Transporte</option>
+                    <option value="Hospedagem">Hospedagem</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-500 uppercase">Descrição Curta</label>
+                  <textarea 
+                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-20 resize-none"
+                    onChange={e => setNewBenefit({...newBenefit, description: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-zinc-500 uppercase">Código Cupom</label>
-                  <input 
-                    type="text" 
-                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                    onChange={e => setNewBenefit({...newBenefit, code: e.target.value})}
-                  />
+                   <label className="text-xs font-bold text-zinc-500 uppercase">URL da Imagem (Opcional)</label>
+                   <input 
+                      type="text" 
+                      placeholder="https://..."
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                      onChange={e => setNewBenefit({...newBenefit, image: e.target.value})}
+                    />
                 </div>
-              </div>
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase">Categoria</label>
-                <select 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                  onChange={e => setNewBenefit({...newBenefit, category: e.target.value as any})}
-                >
-                  <option value="Shopping">Shopping</option>
-                  <option value="Transporte">Transporte</option>
-                  <option value="Hospedagem">Hospedagem</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase">Descrição Curta</label>
-                <textarea 
-                  className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-20 resize-none"
-                  onChange={e => setNewBenefit({...newBenefit, description: e.target.value})}
-                />
-              </div>
-              <div>
-                 <label className="text-xs font-bold text-zinc-500 uppercase">URL da Imagem (Opcional)</label>
-                 <input 
-                    type="text" 
-                    placeholder="https://..."
-                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                    onChange={e => setNewBenefit({...newBenefit, image: e.target.value})}
-                  />
-              </div>
 
-              <button 
-                onClick={handleSave}
-                className="w-full py-4 bg-gradient-gold text-black font-bold rounded-xl mt-4 hover:brightness-110 transition-all"
-              >
-                Salvar Benefício
-              </button>
+                <button 
+                  onClick={handleSave}
+                  className="w-full py-4 bg-gradient-gold text-black font-bold rounded-xl mt-4 hover:brightness-110 transition-all"
+                >
+                  Salvar Benefício
+                </button>
+              </div>
             </div>
           </div>
         </div>

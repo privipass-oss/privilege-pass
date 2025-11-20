@@ -70,6 +70,16 @@ export interface PartnerTransaction {
   date: string;
   status: 'Agendado' | 'Pago' | 'Cancelado';
   scheduledDate: string;
+  archived?: boolean; // New field for archiving
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Admin' | 'Suporte' | 'Financeiro';
+  avatarUrl: string;
+  lastActive: string;
 }
 
 export interface MarketingAsset {
@@ -88,17 +98,6 @@ export interface FAQItem {
   question: string;
   answer: string;
   category?: 'Geral' | 'Acesso' | 'Financeiro' | 'Técnico';
-}
-
-export interface PaymentTransaction {
-    id: string;
-    customerId: string;
-    customerName: string;
-    amount: number;
-    method: 'PIX' | 'CREDIT_CARD';
-    status: 'pending' | 'approved' | 'rejected';
-    date: Date;
-    description: string;
 }
 
 export interface PartnerBenefit {

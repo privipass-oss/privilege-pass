@@ -87,73 +87,75 @@ export const MarketingManager: React.FC<MarketingManagerProps> = ({ assets, onAd
         ))}
       </div>
 
-      {/* Add Modal */}
+      {/* Add Modal - FIXED LAYOUT SCROLL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">Adicionar Material</h3>
-                <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white"><X /></button>
-             </div>
-             
-             <div className="space-y-4">
-                <div>
-                   <label className="text-xs font-bold text-zinc-500 uppercase">Título</label>
-                   <input type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                     onChange={e => setNewAsset({...newAsset, title: e.target.value})} />
-                </div>
-                <div>
-                   <label className="text-xs font-bold text-zinc-500 uppercase">Descrição</label>
-                   <input type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                     onChange={e => setNewAsset({...newAsset, description: e.target.value})} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                   <div>
-                      <label className="text-xs font-bold text-zinc-500 uppercase">Tipo</label>
-                      <select className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                        onChange={e => setNewAsset({...newAsset, type: e.target.value as any})}>
-                         <option value="Image">Imagem</option>
-                         <option value="PDF">PDF</option>
-                         <option value="Text">Texto (Copy)</option>
-                      </select>
-                   </div>
-                   <div>
-                      <label className="text-xs font-bold text-zinc-500 uppercase">Categoria</label>
-                      <select className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                        onChange={e => setNewAsset({...newAsset, category: e.target.value as any})}>
-                         <option value="Stories">Stories</option>
-                         <option value="Feed">Feed</option>
-                         <option value="Copy">Copy / Texto</option>
-                         <option value="Documentos">Documentos</option>
-                      </select>
-                   </div>
-                </div>
-
-                {newAsset.type !== 'Text' ? (
-                   <>
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setIsModalOpen(false)}>
+          <div className="min-h-full flex items-start justify-center p-4 py-12">
+            <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+               <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold text-white">Adicionar Material</h3>
+                  <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white"><X /></button>
+               </div>
+               
+               <div className="space-y-4">
+                  <div>
+                     <label className="text-xs font-bold text-zinc-500 uppercase">Título</label>
+                     <input type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                       onChange={e => setNewAsset({...newAsset, title: e.target.value})} />
+                  </div>
+                  <div>
+                     <label className="text-xs font-bold text-zinc-500 uppercase">Descrição</label>
+                     <input type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                       onChange={e => setNewAsset({...newAsset, description: e.target.value})} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                      <div>
-                        <label className="text-xs font-bold text-zinc-500 uppercase">URL do Arquivo</label>
-                        <input type="text" placeholder="https://..." className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                           onChange={e => setNewAsset({...newAsset, url: e.target.value})} />
+                        <label className="text-xs font-bold text-zinc-500 uppercase">Tipo</label>
+                        <select className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                          onChange={e => setNewAsset({...newAsset, type: e.target.value as any})}>
+                           <option value="Image">Imagem</option>
+                           <option value="PDF">PDF</option>
+                           <option value="Text">Texto (Copy)</option>
+                        </select>
                      </div>
                      <div>
-                        <label className="text-xs font-bold text-zinc-500 uppercase">Thumbnail URL (Opcional)</label>
-                        <input type="text" placeholder="https://..." className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
-                           onChange={e => setNewAsset({...newAsset, thumbnail: e.target.value})} />
+                        <label className="text-xs font-bold text-zinc-500 uppercase">Categoria</label>
+                        <select className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                          onChange={e => setNewAsset({...newAsset, category: e.target.value as any})}>
+                           <option value="Stories">Stories</option>
+                           <option value="Feed">Feed</option>
+                           <option value="Copy">Copy / Texto</option>
+                           <option value="Documentos">Documentos</option>
+                        </select>
                      </div>
-                   </>
-                ) : (
-                   <div>
-                      <label className="text-xs font-bold text-zinc-500 uppercase">Conteúdo do Texto</label>
-                      <textarea className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-32 resize-none"
-                         onChange={e => setNewAsset({...newAsset, content: e.target.value})} />
-                   </div>
-                )}
+                  </div>
 
-                <button onClick={handleSave} className="w-full py-4 bg-gradient-gold text-black font-bold rounded-xl mt-4 hover:brightness-110 transition-all">
-                   Salvar Material
-                </button>
-             </div>
+                  {newAsset.type !== 'Text' ? (
+                     <>
+                       <div>
+                          <label className="text-xs font-bold text-zinc-500 uppercase">URL do Arquivo</label>
+                          <input type="text" placeholder="https://..." className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                             onChange={e => setNewAsset({...newAsset, url: e.target.value})} />
+                       </div>
+                       <div>
+                          <label className="text-xs font-bold text-zinc-500 uppercase">Thumbnail URL (Opcional)</label>
+                          <input type="text" placeholder="https://..." className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500"
+                             onChange={e => setNewAsset({...newAsset, thumbnail: e.target.value})} />
+                       </div>
+                     </>
+                  ) : (
+                     <div>
+                        <label className="text-xs font-bold text-zinc-500 uppercase">Conteúdo do Texto</label>
+                        <textarea className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500 h-32 resize-none"
+                           onChange={e => setNewAsset({...newAsset, content: e.target.value})} />
+                     </div>
+                  )}
+
+                  <button onClick={handleSave} className="w-full py-4 bg-gradient-gold text-black font-bold rounded-xl mt-4 hover:brightness-110 transition-all">
+                     Salvar Material
+                  </button>
+               </div>
+            </div>
           </div>
         </div>
       )}

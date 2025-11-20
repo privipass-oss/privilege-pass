@@ -19,7 +19,7 @@ import { AuthScreen } from './components/AuthScreen';
 import { ClientArea } from './components/ClientArea';
 import { PartnerRegistration } from './components/PartnerRegistration';
 import { PartnerArea } from './components/PartnerArea';
-import { AppMode, ViewState, PartnerBenefit, Partner, Customer, VoucherPack, MarketingAsset, FAQItem } from './types';
+import { AppMode, ViewState, PartnerBenefit, Partner, Customer, VoucherPack, MarketingAsset, FAQItem, AdminUser } from './types';
 import { ShieldCheck } from 'lucide-react';
 import { PARTNER_BENEFITS, MOCK_PARTNERS, LOGO_URL, MOCK_CUSTOMERS, VOUCHER_PACKS, MOCK_MARKETING_ASSETS, INITIAL_FAQS } from './constants';
 
@@ -61,6 +61,12 @@ export default function App() {
   const [faqItems, setFaqItems] = useState<FAQItem[]>(() => 
     loadFromStorage('pp_faq', INITIAL_FAQS)
   );
+  const [staffMembers, setStaffMembers] = useState<AdminUser[]>(() => 
+    loadFromStorage('pp_staff', [])
+  );
+  const [adminProfile, setAdminProfile] = useState<Partial<AdminUser>>(() => 
+    loadFromStorage('pp_admin_profile', { name: 'Admin Principal', email: 'privi.pass@gmail.com', role: 'Admin', avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000' })
+  );
 
   // Salvar automaticamente no Storage
   useEffect(() => { localStorage.setItem('pp_benefits', JSON.stringify(benefits)); }, [benefits]);
@@ -69,6 +75,8 @@ export default function App() {
   useEffect(() => { localStorage.setItem('pp_products', JSON.stringify(products)); }, [products]);
   useEffect(() => { localStorage.setItem('pp_marketing', JSON.stringify(marketingAssets)); }, [marketingAssets]);
   useEffect(() => { localStorage.setItem('pp_faq', JSON.stringify(faqItems)); }, [faqItems]);
+  useEffect(() => { localStorage.setItem('pp_staff', JSON.stringify(staffMembers)); }, [staffMembers]);
+  useEffect(() => { localStorage.setItem('pp_admin_profile', JSON.stringify(adminProfile)); }, [adminProfile]);
 
   // Persistência da Sessão
   useEffect(() => {
@@ -173,11 +181,7 @@ export default function App() {
   };
 
   const handleDeleteCustomer = (id: string) => {
-      console.log(`[APP DEBUG] Deletando cliente ID: ${id}`);
-      setCustomers(prevCustomers => {
-          const newCustomers = prevCustomers.filter(c => String(c.id) !== String(id));
-          return newCustomers;
-      });
+      setCustomers(prevCustomers => prevCustomers.filter(c => String(c.id) !== String(id)));
   };
 
   // --- PRODUCT MANAGEMENT ---
@@ -197,7 +201,6 @@ export default function App() {
         totalEarned: 0,
         commissionType: newPartnerData.category === 'Motorista' ? 'Fixed' : 'Percentage',
         commissionValue: newPartnerData.category === 'Motorista' ? 50 : 10,
-        // couponCode comes pre-formatted from registration now
         avatarUrl: `https://ui-avatars.com/api/?name=${newPartnerData.name}&background=random`
     };
     
@@ -209,8 +212,12 @@ export default function App() {
   const handlePartnerLoginClick = () => setAppMode('AUTH'); 
 
   // --- ADMIN PARTNER MANAGEMENT ---
-  const handleUpdatePartnerStatus = (id: string, status: 'Ativo' | 'Bloqueado') => {
-     setPartners(partners.map(p => p.id === id ? { ...p, status } : p));
+  const handleUpdatePartnerStatus = (id: string, status: 'Ativo' | 'Bloqueado' | 'Pendente') => {
+     setPartners(partners.map(p => p.id === id ? { ...p, status: status as any } : p));
+  };
+
+  const handleDeletePartner = (id: string) => {
+      setPartners(prev => prev.filter(p => p.id !== id));
   };
 
   // --- BENEFITS MANAGEMENT ---
@@ -240,6 +247,17 @@ export default function App() {
       setFaqItems(faqItems.filter(f => f.id !== id));
   };
 
+  // --- STAFF & PROFILE MANAGEMENT ---
+  const handleAddStaff = (staff: AdminUser) => {
+      setStaffMembers([...staffMembers, staff]);
+  };
+  const handleRemoveStaff = (id: string) => {
+      setStaffMembers(staffMembers.filter(s => s.id !== id));
+  };
+  const handleUpdateAdminProfile = (data: Partial<AdminUser>) => {
+      setAdminProfile(prev => ({ ...prev, ...data }));
+  };
+
   // Boot Screen
   if (isBooting) {
     return (
@@ -259,7 +277,7 @@ export default function App() {
             </div>
          </div>
          <div className="absolute bottom-10 text-zinc-600 text-[10px] font-mono">
-            v3.2.0 • Storage Active
+            v3.2.1 • Storage Active
          </div>
       </div>
     );
@@ -273,7 +291,7 @@ export default function App() {
         onPartnerLogin={handlePartnerLoginClick} 
         products={products}
         faqItems={faqItems}
-        onViewSupport={() => setAppMode('SUPPORT')} // Add navigation
+        onViewSupport={() => setAppMode('SUPPORT')} 
     />;
   }
 
@@ -323,11 +341,25 @@ export default function App() {
          />
       );
       case 'analytics': return <Analytics />;
-      case 'partners': return <PartnersManager partners={partners} onUpdateStatus={handleUpdatePartnerStatus} />;
+      case 'partners': return (
+        <PartnersManager 
+            partners={partners} 
+            onUpdateStatus={handleUpdatePartnerStatus} 
+            onDelete={handleDeletePartner} 
+        />
+      );
       case 'benefits': return <BenefitsManager benefits={benefits} onAdd={handleAddBenefit} onRemove={handleRemoveBenefit} />;
       case 'marketing': return <MarketingManager assets={marketingAssets} onAdd={handleAddMarketingAsset} onRemove={handleRemoveMarketingAsset} />;
       case 'concierge': return <Concierge />;
-      case 'settings': return <Settings />;
+      case 'settings': return (
+         <Settings 
+            adminProfile={adminProfile} 
+            onUpdateProfile={handleUpdateAdminProfile} 
+            staff={staffMembers} 
+            onAddStaff={handleAddStaff} 
+            onRemoveStaff={handleRemoveStaff} 
+         />
+      );
       case 'faq': return <FAQManager items={faqItems} onAdd={handleAddFAQ} onUpdate={handleUpdateFAQ} onRemove={handleRemoveFAQ} />;
       case 'travel-hub': return (
         <div className="p-8 h-full overflow-y-auto pb-20">
@@ -359,7 +391,8 @@ export default function App() {
            </button>
         </div>
 
-        <Header onNavigate={setAdminView} />
+        {/* Pass Real Admin Profile Data */}
+        <Header onNavigate={setAdminView} adminProfile={adminProfile as AdminUser} />
         
         <main className="flex-1 overflow-y-auto p-0 scroll-smooth custom-scrollbar relative">
            <button 

@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { Bell, Search, ChevronDown } from 'lucide-react';
-import { ViewState } from '../types';
+import { ViewState, AdminUser } from '../types';
 
 interface HeaderProps {
     onNavigate?: (view: ViewState) => void;
+    adminProfile?: Partial<AdminUser>;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
+export const Header: React.FC<HeaderProps> = ({ onNavigate, adminProfile }) => {
   return (
     <header className="h-20 px-8 flex items-center justify-between bg-slate-950/80 backdrop-blur-md border-b border-white/5 sticky top-0 z-40">
       
@@ -35,13 +36,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
           className="flex items-center gap-3 cursor-pointer group outline-none"
         >
           <img 
-            src="https://picsum.photos/100/100?random=99" 
+            src={adminProfile?.avatarUrl || "https://ui-avatars.com/api/?name=Admin&background=random"} 
             alt="Admin" 
-            className="w-10 h-10 rounded-full border-2 border-amber-500/30 group-hover:border-amber-500 transition-colors"
+            className="w-10 h-10 rounded-full border-2 border-amber-500/30 group-hover:border-amber-500 transition-colors object-cover"
           />
           <div className="hidden md:block text-left">
-            <p className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">Admin Principal</p>
-            <p className="text-xs text-slate-400">Privilege Manager</p>
+            <p className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">{adminProfile?.name || 'Admin Principal'}</p>
+            <p className="text-xs text-slate-400">{adminProfile?.role || 'Privilege Manager'}</p>
           </div>
           <ChevronDown size={16} className="text-slate-500 group-hover:text-white transition-colors" />
         </button>

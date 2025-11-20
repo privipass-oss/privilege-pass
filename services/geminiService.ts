@@ -1,19 +1,21 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 const apiKey = process.env.API_KEY || '';
-
-// Initialize strictly as per guidelines
-const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export const sendMessageToGemini = async (
   message: string,
   history: string[]
 ): Promise<string> => {
   if (!apiKey) {
-    return "API Key não configurada. Por favor, configure a chave API no ambiente para usar o Concierge.";
+    console.warn("Gemini API Key is missing in environment variables.");
+    return "O Concierge está indisponível no momento (Chave de API não configurada). Por favor, tente novamente mais tarde.";
   }
 
   try {
+    // Initialize strictly inside the function to avoid init errors if key is missing globally
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+
     const systemInstruction = `
       Você é o 'Privilege Concierge', a IA exclusiva do **Privilege Pass**.
 

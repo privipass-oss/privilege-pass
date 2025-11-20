@@ -3,14 +3,15 @@ import React, { useState } from 'react';
 import { GlassCard } from './ui/GlassCard';
 import { MOCK_TRANSACTIONS } from '../constants';
 import { Partner, PartnerTransaction } from '../types';
-import { CheckCircle, DollarSign, Clock, Settings, Phone, Instagram, UserPlus, Ban, Check, Filter, Download, FileText, TrendingUp } from 'lucide-react';
+import { CheckCircle, DollarSign, Clock, Settings, Phone, Instagram, UserPlus, Ban, Check, Filter, Download, FileText, TrendingUp, Archive, Trash2, PauseCircle, PlayCircle } from 'lucide-react';
 
 interface PartnersManagerProps {
   partners?: Partner[];
-  onUpdateStatus?: (id: string, status: 'Ativo' | 'Bloqueado') => void;
+  onUpdateStatus?: (id: string, status: 'Ativo' | 'Bloqueado' | 'Pendente') => void;
+  onDelete?: (id: string) => void;
 }
 
-export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [], onUpdateStatus }) => {
+export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [], onUpdateStatus, onDelete }) => {
   const [activeTab, setActiveTab] = useState<'payments' | 'history' | 'requests' | 'list'>('payments');
   
   // State for Transactions to allow updates
@@ -18,6 +19,7 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
   
   // State for History Filter
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>('all');
+  const [showArchived, setShowArchived] = useState(false);
 
   // Derived Lists
   const pendingPayments = transactions.filter(t => t.status === 'Agendado');
@@ -37,6 +39,22 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
     }
   };
 
+  const handleArchive = (id: string) => {
+      setTransactions(prev => prev.map(t => t.id === id ? { ...t, archived: true } : t));
+  };
+
+  const handleDeleteTransaction = (id: string) => {
+      if(window.confirm("Tem certeza que deseja excluir permanentemente este registro?")) {
+          setTransactions(prev => prev.filter(t => t.id !== id));
+      }
+  };
+
+  const handleDeletePartner = (id: string) => {
+      if(window.confirm("ATENÇÃO: Excluir este parceiro apagará todos os dados de acesso dele.\nO histórico financeiro será mantido.\n\nDeseja continuar?")) {
+          if(onDelete) onDelete(id);
+      }
+  }
+
   const handleContact = (type: 'whatsapp' | 'instagram', value: string) => {
       if(type === 'whatsapp') {
           window.open(`https://wa.me/55${value.replace(/\D/g,'')}`, '_blank');
@@ -46,9 +64,11 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
   };
 
   // Filter History Logic
-  const filteredHistory = selectedPartnerId === 'all' 
-    ? paidHistory 
-    : paidHistory.filter(t => t.partnerId === selectedPartnerId);
+  const filteredHistory = paidHistory.filter(t => {
+      const matchesPartner = selectedPartnerId === 'all' || t.partnerId === selectedPartnerId;
+      const matchesArchive = showArchived ? true : !t.archived;
+      return matchesPartner && matchesArchive;
+  });
 
   // Calculate Stats for Filtered View
   const statsTotalPaid = filteredHistory.reduce((acc, curr) => acc + curr.commissionValue, 0);
@@ -181,18 +201,24 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
                   <GlassCard className="flex-1" noPadding>
                       <div className="p-6">
                           <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                              <Filter size={18} className="text-gold-500" /> Filtrar por Parceiro
+                              <Filter size={18} className="text-gold-500" /> Filtros
                           </h3>
-                          <select 
-                            className="w-full bg-zinc-950 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold-500"
-                            value={selectedPartnerId}
-                            onChange={(e) => setSelectedPartnerId(e.target.value)}
-                          >
-                              <option value="all">Todos os Parceiros</option>
-                              {partners.map(p => (
-                                  <option key={p.id} value={p.id}>{p.name} ({p.category})</option>
-                              ))}
-                          </select>
+                          <div className="space-y-3">
+                              <select 
+                                className="w-full bg-zinc-950 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold-500"
+                                value={selectedPartnerId}
+                                onChange={(e) => setSelectedPartnerId(e.target.value)}
+                              >
+                                  <option value="all">Todos os Parceiros</option>
+                                  {partners.map(p => (
+                                      <option key={p.id} value={p.id}>{p.name} ({p.category})</option>
+                                  ))}
+                              </select>
+                              <div className="flex items-center gap-2">
+                                  <input type="checkbox" checked={showArchived} onChange={() => setShowArchived(!showArchived)} className="accent-gold-500 w-4 h-4" />
+                                  <span className="text-sm text-zinc-400">Mostrar Arquivados</span>
+                              </div>
+                          </div>
                       </div>
                   </GlassCard>
 
@@ -242,13 +268,14 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
                               <th className="p-4">Produto Vendido</th>
                               <th className="p-4 text-right">Valor Comissão</th>
                               <th className="p-4 text-right">Status</th>
+                              <th className="p-4 text-right">Ações</th>
                           </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
                           {filteredHistory.map(t => {
                               const partner = partners.find(p => p.id === t.partnerId);
                               return (
-                                  <tr key={t.id} className="hover:bg-white/5 transition-colors">
+                                  <tr key={t.id} className={`hover:bg-white/5 transition-colors ${t.archived ? 'opacity-50' : ''}`}>
                                       <td className="p-4 text-zinc-400 text-sm">{t.scheduledDate}</td>
                                       <td className="p-4">
                                           <div className="flex items-center gap-2">
@@ -260,8 +287,20 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
                                       <td className="p-4 text-right text-emerald-400 font-bold text-sm">R$ {t.commissionValue.toFixed(2)}</td>
                                       <td className="p-4 text-right">
                                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-zinc-800 text-zinc-400 text-xs font-bold uppercase">
-                                              <Check size={10} /> Pago
+                                              <Check size={10} /> {t.archived ? 'Arquivado' : 'Pago'}
                                           </span>
+                                      </td>
+                                      <td className="p-4 text-right">
+                                          <div className="flex justify-end gap-2">
+                                              {!t.archived && (
+                                                <button onClick={() => handleArchive(t.id)} className="p-1 text-zinc-500 hover:text-white" title="Arquivar">
+                                                    <Archive size={14} />
+                                                </button>
+                                              )}
+                                              <button onClick={() => handleDeleteTransaction(t.id)} className="p-1 text-zinc-500 hover:text-red-500" title="Excluir">
+                                                  <Trash2 size={14} />
+                                              </button>
+                                          </div>
                                       </td>
                                   </tr>
                               );
@@ -337,17 +376,17 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
          <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                {partners.filter(p => p.status === 'Ativo' || p.status === 'Bloqueado').map(partner => (
-                  <GlassCard key={partner.id} className={`flex flex-col gap-4 ${partner.status === 'Bloqueado' ? 'opacity-50 grayscale' : ''}`}>
+                  <GlassCard key={partner.id} className={`flex flex-col gap-4 ${partner.status === 'Bloqueado' ? 'border-red-500/30 bg-red-900/5' : ''}`}>
                      <div className="flex justify-between items-start">
                         <div className="flex items-center gap-4">
-                           <img src={partner.avatarUrl} className="w-12 h-12 rounded-full border border-white/10" />
+                           <img src={partner.avatarUrl} className={`w-12 h-12 rounded-full border ${partner.status === 'Bloqueado' ? 'border-red-500 grayscale' : 'border-white/10'}`} />
                            <div>
                               <h3 className="text-white font-bold">{partner.name}</h3>
                               <div className="flex items-center gap-2 mt-1">
                                  <span className={`text-[10px] px-2 py-0.5 rounded border ${partner.category === 'Motorista' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-purple-500/10 border-purple-500/20 text-purple-500'}`}>
                                     {partner.category.toUpperCase()}
                                  </span>
-                                 {partner.status === 'Bloqueado' && <span className="text-[10px] px-2 py-0.5 rounded bg-red-500 text-white font-bold">BLOQUEADO</span>}
+                                 {partner.status === 'Bloqueado' && <span className="text-[10px] px-2 py-0.5 rounded bg-red-500 text-white font-bold flex items-center gap-1"><Ban size={8}/> BLOQUEADO</span>}
                               </div>
                            </div>
                         </div>
@@ -373,13 +412,22 @@ export const PartnersManager: React.FC<PartnersManagerProps> = ({ partners = [],
                          </button>
                      </div>
                      
-                     <div className="flex justify-between items-center mt-2">
-                        <span className="text-xs text-zinc-500">Desde: Hoje</span>
+                     <div className="flex justify-between items-center mt-2 gap-2">
+                        
+                        {/* Delete Button */}
+                        <button 
+                           onClick={() => handleDeletePartner(partner.id)}
+                           className="flex-1 py-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-500 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                        >
+                           <Trash2 size={14} /> Excluir
+                        </button>
+
+                        {/* Toggle Status */}
                         <button 
                            onClick={() => onUpdateStatus && onUpdateStatus(partner.id, partner.status === 'Ativo' ? 'Bloqueado' : 'Ativo')}
-                           className="text-zinc-500 hover:text-white text-xs underline"
+                           className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-colors ${partner.status === 'Ativo' ? 'bg-white/5 hover:bg-white/10 text-zinc-300' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}`}
                         >
-                           {partner.status === 'Ativo' ? 'Bloqueiar Acesso' : 'Reativar Acesso'}
+                           {partner.status === 'Ativo' ? <><PauseCircle size={14} /> Bloquear</> : <><PlayCircle size={14} /> Reativar</>}
                         </button>
                      </div>
                   </GlassCard>
