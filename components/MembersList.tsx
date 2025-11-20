@@ -212,51 +212,55 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
       
       {/* VIEW VOUCHER / SUCCESS MODAL */}
       {showSuccessModal && generatedVoucherData && (
-          <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in overflow-auto">
-              
-              {/* Actions Toolbar */}
-              <div className="absolute top-4 right-4 md:top-8 md:right-8 flex flex-col md:flex-row gap-4 no-print z-50">
-                  <button 
-                    type="button"
-                    onClick={handleDownloadImage}
-                    disabled={isDownloading}
-                    className="px-6 py-3 bg-gradient-gold text-black rounded-xl hover:brightness-110 transition-all flex items-center gap-2 shadow-xl font-bold cursor-pointer disabled:opacity-50"
-                  >
-                      {isDownloading ? <span className="animate-spin w-5 h-5 border-2 border-black border-t-transparent rounded-full"></span> : <Download size={20} />}
-                      Baixar Imagem (PNG)
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={triggerPrint}
-                    className="px-6 py-3 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors flex items-center gap-2 border border-white/10 shadow-xl font-bold cursor-pointer"
-                  >
-                      <Printer size={20} /> Imprimir PDF
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => setShowSuccessModal(false)}
-                    className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors shadow-xl"
-                  >
-                      <X size={20} /> Fechar
-                  </button>
-              </div>
+          <div className="fixed inset-0 z-[100] bg-black/95 overflow-y-auto">
+               {/* Safe Scroll Container */}
+              <div className="min-h-screen flex items-start justify-center py-12 px-4" onClick={() => setShowSuccessModal(false)}>
+                  <div className="w-full flex flex-col items-center" onClick={e => e.stopPropagation()}>
+                        {/* Actions Toolbar */}
+                        <div className="absolute top-4 right-4 md:top-8 md:right-8 flex flex-col md:flex-row gap-4 no-print z-50">
+                            <button 
+                                type="button"
+                                onClick={handleDownloadImage}
+                                disabled={isDownloading}
+                                className="px-6 py-3 bg-gradient-gold text-black rounded-xl hover:brightness-110 transition-all flex items-center gap-2 shadow-xl font-bold cursor-pointer disabled:opacity-50"
+                            >
+                                {isDownloading ? <span className="animate-spin w-5 h-5 border-2 border-black border-t-transparent rounded-full"></span> : <Download size={20} />}
+                                Baixar Imagem (PNG)
+                            </button>
+                            <button 
+                                type="button"
+                                onClick={triggerPrint}
+                                className="px-6 py-3 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors flex items-center gap-2 border border-white/10 shadow-xl font-bold cursor-pointer"
+                            >
+                                <Printer size={20} /> Imprimir PDF
+                            </button>
+                            <button 
+                                type="button"
+                                onClick={() => setShowSuccessModal(false)}
+                                className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors shadow-xl"
+                            >
+                                <X size={20} /> Fechar
+                            </button>
+                        </div>
 
-              <div className="text-center mb-8 no-print mt-32 md:mt-0">
-                  <h2 className="text-3xl font-bold text-white text-gradient-gold mb-2">Voucher Gerado</h2>
-                  <p className="text-zinc-400 max-w-md mx-auto">
-                      Clique em "Baixar Imagem" para enviar pelo WhatsApp ou Imprimir.
-                  </p>
-              </div>
+                        <div className="text-center mb-8 no-print mt-32 md:mt-0">
+                            <h2 className="text-3xl font-bold text-white text-gradient-gold mb-2">Voucher Gerado</h2>
+                            <p className="text-zinc-400 max-w-md mx-auto">
+                                Clique em "Baixar Imagem" para enviar pelo WhatsApp ou Imprimir.
+                            </p>
+                        </div>
 
-              {/* Printable Area */}
-              <div id="voucher-print-area" className="scale-100 transform-gpu mb-10">
-                  <VoucherArt 
-                      passengerName={generatedVoucherData.passengerName}
-                      planName={generatedVoucherData.planName}
-                      qrCodeUrl={generatedVoucherData.qrCodeUrl}
-                      type={generatedVoucherData.type}
-                      voucherCode={generatedVoucherData.code}
-                  />
+                        {/* Printable Area */}
+                        <div id="voucher-print-area" className="scale-100 transform-gpu mb-10">
+                            <VoucherArt 
+                                passengerName={generatedVoucherData.passengerName}
+                                planName={generatedVoucherData.planName}
+                                qrCodeUrl={generatedVoucherData.qrCodeUrl}
+                                type={generatedVoucherData.type}
+                                voucherCode={generatedVoucherData.code}
+                            />
+                        </div>
+                  </div>
               </div>
           </div>
       )}
@@ -329,36 +333,38 @@ export const MembersList: React.FC<MembersListProps> = ({ customers, products, o
         ))}
       </div>
 
-      {/* Create Customer Modal */}
+      {/* Create Customer Modal - FIX: Uses flex-start/overflow-auto to prevent clipping */}
       {isNewCustomerModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setIsNewCustomerModalOpen(false)}>
-              <div className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full relative" onClick={e => e.stopPropagation()}>
-                  <button onClick={() => setIsNewCustomerModalOpen(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X /></button>
-                  <h3 className="text-xl font-bold text-white mb-6">Cadastro Manual</h3>
-                  <form onSubmit={handleCreateCustomer} className="space-y-4">
-                      <div className="space-y-1">
-                         <label className="text-[10px] uppercase font-bold text-zinc-500">Nome Completo</label>
-                         <input required type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500" placeholder="Nome" onChange={e => setNewCustomerData({...newCustomerData, name: e.target.value})}/>
-                      </div>
-                      
-                      <div className="space-y-1">
-                         <label className="text-[10px] uppercase font-bold text-zinc-500">Email (Login)</label>
-                         <input required type="email" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500" placeholder="Email" onChange={e => setNewCustomerData({...newCustomerData, email: e.target.value})}/>
-                      </div>
-                      
-                      <div className="space-y-1">
-                         <label className="text-[10px] uppercase font-bold text-zinc-500">Telefone</label>
-                         <input required type="tel" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500" placeholder="Telefone" onChange={e => setNewCustomerData({...newCustomerData, phone: e.target.value})}/>
-                      </div>
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto" onClick={() => setIsNewCustomerModalOpen(false)}>
+              <div className="min-h-full flex items-start justify-center py-20 px-4">
+                  <div className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+                      <button onClick={() => setIsNewCustomerModalOpen(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X /></button>
+                      <h3 className="text-xl font-bold text-white mb-6">Cadastro Manual</h3>
+                      <form onSubmit={handleCreateCustomer} className="space-y-4">
+                          <div className="space-y-1">
+                            <label className="text-[10px] uppercase font-bold text-zinc-500">Nome Completo</label>
+                            <input required type="text" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500" placeholder="Nome" onChange={e => setNewCustomerData({...newCustomerData, name: e.target.value})}/>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <label className="text-[10px] uppercase font-bold text-zinc-500">Email (Login)</label>
+                            <input required type="email" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500" placeholder="Email" onChange={e => setNewCustomerData({...newCustomerData, email: e.target.value})}/>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <label className="text-[10px] uppercase font-bold text-zinc-500">Telefone</label>
+                            <input required type="tel" className="w-full bg-black border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-gold-500" placeholder="Telefone" onChange={e => setNewCustomerData({...newCustomerData, phone: e.target.value})}/>
+                          </div>
 
-                      <div className="space-y-1">
-                         <label className="text-[10px] uppercase font-bold text-emerald-500 flex items-center gap-1"><Lock size={10} /> Senha Inicial</label>
-                         <input required type="text" className="w-full bg-black border border-emerald-500/30 rounded-lg p-3 text-white mt-1 outline-none focus:border-emerald-500" placeholder="Crie uma senha" onChange={e => setNewCustomerData({...newCustomerData, password: e.target.value})}/>
-                         <p className="text-[10px] text-zinc-500 text-right">O cliente usará esta senha para logar.</p>
-                      </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] uppercase font-bold text-emerald-500 flex items-center gap-1"><Lock size={10} /> Senha Inicial</label>
+                            <input required type="text" className="w-full bg-black border border-emerald-500/30 rounded-lg p-3 text-white mt-1 outline-none focus:border-emerald-500" placeholder="Crie uma senha" onChange={e => setNewCustomerData({...newCustomerData, password: e.target.value})}/>
+                            <p className="text-[10px] text-zinc-500 text-right">O cliente usará esta senha para logar.</p>
+                          </div>
 
-                      <button type="submit" className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl mt-2">Cadastrar</button>
-                  </form>
+                          <button type="submit" className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl mt-2">Cadastrar</button>
+                      </form>
+                  </div>
               </div>
           </div>
       )}
