@@ -17,8 +17,12 @@ jobs:
         run: npm install
       - name: Build do projeto
         run: npm run build
-      - name: Remove .vercel directory
+      - name: Remover .vercel directory
         run: rm -rf .vercel
+      - name: Create Vercel Project
+        run: npx vercel link --yes --scope raphael-project
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - name: Deploy para Vercel
         uses: amondnet/vercel-action@v25
         with:
