@@ -24,7 +24,7 @@ jobs:
       - name: Build do projeto
         run: npm run build
              - name: Remove .vercel directory
-       run: rm -rf .vercel
+              run: rm -rf .vercel
       
       - name: Deploy para Vercel
         uses: amondnet/vercel-action@v25
