@@ -7,26 +7,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Clonar repositório
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Instalar Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Instalar dependências
+      - name: Install dependencies
         run: npm install
-      - name: Build do projeto
+      - name: Build project
         run: npm run build
-      - name: Remover .vercel directory
-        run: rm -rf .vercel
-      - name: Create Vercel Project
-        run: npx vercel link --yes --scope raphael-project
+      - name: Deploy to Vercel Production
+        run: |
+          npm i -g vercel
+          vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --prod
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      - name: Deploy para Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
