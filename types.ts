@@ -5,6 +5,7 @@ export type AppMode = 'LANDING' | 'AUTH' | 'CLIENT_AREA' | 'ADMIN_DASHBOARD' | '
 export type AuthMode = 'LOGIN' | 'REGISTER';
 
 export type VoucherType = 'Nacional' | 'Internacional';
+export type AdminRole = 'Admin' | 'Suporte' | 'Financeiro'; 
 
 export interface VoucherPack {
   id: string;
@@ -15,6 +16,16 @@ export interface VoucherPack {
   price: number;
   features: string[];
   isActive?: boolean;
+}
+
+export interface EmailCampaign {
+  id: string;
+  subject: string;
+  content: string;
+  recipientType: 'ALL' | 'CUSTOMERS' | 'PARTNERS';
+  sentDate: string;
+  status: 'Sent' | 'Draft';
+  sentCount: number;
 }
 
 export interface Customer {
@@ -70,17 +81,17 @@ export interface PartnerTransaction {
   date: string;
   status: 'Agendado' | 'Pago' | 'Cancelado';
   scheduledDate: string;
-  archived?: boolean; // New field for archiving
+  archived?: boolean; 
 }
 
 export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: 'Admin' | 'Suporte' | 'Financeiro';
+  role: AdminRole; 
   avatarUrl: string;
   lastActive: string;
-  password?: string;
+  password?: string; 
 }
 
 export interface MarketingAsset {
@@ -88,8 +99,8 @@ export interface MarketingAsset {
   title: string;
   description: string;
   type: 'Image' | 'PDF' | 'Text';
-  url?: string; // For images/PDFs
-  content?: string; // For text/copy
+  url?: string;
+  content?: string; 
   thumbnail?: string;
   category: 'Stories' | 'Feed' | 'Documentos' | 'Copy';
 }
@@ -162,4 +173,4 @@ export interface FlightStatus {
   departureTime: string;
 }
 
-export type ViewState = 'dashboard' | 'members' | 'concierge' | 'settings' | 'analytics' | 'partners' | 'marketing' | 'benefits' | 'products' | 'travel-hub' | 'faq';
+export type ViewState = 'dashboard' | 'members' | 'concierge' | 'settings' | 'analytics' | 'partners' | 'marketing' | 'benefits' | 'products' | 'travel-hub' | 'faq' | 'email';

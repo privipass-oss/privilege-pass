@@ -1,4 +1,5 @@
 
+// v3.7.0 - Production Ready (Clean Slate)
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
@@ -12,6 +13,7 @@ import { ProductManager } from './components/ProductManager';
 import { MarketingManager } from './components/MarketingManager';
 import { FAQManager } from './components/FAQManager';
 import { TravelHub } from './components/TravelHub';
+import { MailManager } from './components/MailManager';
 import { Header } from './components/Header';
 import { LandingPage } from './components/LandingPage';
 import { SupportPage } from './components/SupportPage';
@@ -19,62 +21,60 @@ import { AuthScreen } from './components/AuthScreen';
 import { ClientArea } from './components/ClientArea';
 import { PartnerRegistration } from './components/PartnerRegistration';
 import { PartnerArea } from './components/PartnerArea';
-import { AppMode, ViewState, PartnerBenefit, Partner, Customer, VoucherPack, MarketingAsset, FAQItem, AdminUser } from './types';
+import { AppMode, ViewState, PartnerBenefit, Partner, Customer, VoucherPack, MarketingAsset, FAQItem, AdminUser, PartnerTransaction, EmailCampaign } from './types';
 import { ShieldCheck } from 'lucide-react';
-import { PARTNER_BENEFITS, MOCK_PARTNERS, LOGO_URL, MOCK_CUSTOMERS, VOUCHER_PACKS, MOCK_MARKETING_ASSETS, INITIAL_FAQS } from './constants';
+import { PARTNER_BENEFITS, LOGO_URL, VOUCHER_PACKS, INITIAL_FAQS } from './constants';
 
-// Helper para carregar do LocalStorage com fallback
+// Helper: Load from storage, fall back to default ONLY if key doesn't exist
 const loadFromStorage = <T,>(key: string, fallback: T): T => {
   try {
     const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : fallback;
+    if (saved !== null) {
+        return JSON.parse(saved);
+    }
+    return fallback;
   } catch (e) {
     console.warn(`Erro ao carregar ${key} do storage`, e);
     return fallback;
   }
 };
 
-export default function App() {
+export default function PrivilegeApp() {
   const [appMode, setAppMode] = useState<AppMode>('LANDING');
   const [adminView, setAdminView] = useState<ViewState>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBooting, setIsBooting] = useState(true);
   
-  // --- STATE COM PERSISTÊNCIA (LOCAL STORAGE) ---
+  // --- STATE ---
   const [currentUser, setCurrentUser] = useState<any>(null);
   
-  const [benefits, setBenefits] = useState<PartnerBenefit[]>(() => 
-    loadFromStorage('pp_benefits', PARTNER_BENEFITS)
-  );
-  const [partners, setPartners] = useState<Partner[]>(() => 
-    loadFromStorage('pp_partners', MOCK_PARTNERS)
-  );
-  const [customers, setCustomers] = useState<Customer[]>(() => 
-    loadFromStorage('pp_customers', MOCK_CUSTOMERS)
-  );
-  const [products, setProducts] = useState<VoucherPack[]>(() => 
-    loadFromStorage('pp_products', VOUCHER_PACKS)
-  );
-  const [marketingAssets, setMarketingAssets] = useState<MarketingAsset[]>(() => 
-    loadFromStorage('pp_marketing', MOCK_MARKETING_ASSETS)
-  );
-  const [faqItems, setFaqItems] = useState<FAQItem[]>(() => 
-    loadFromStorage('pp_faq', INITIAL_FAQS)
-  );
-  const [staffMembers, setStaffMembers] = useState<AdminUser[]>(() => 
-    loadFromStorage('pp_staff', [])
-  );
-  const [adminProfile, setAdminProfile] = useState<Partial<AdminUser>>(() => 
-    loadFromStorage('pp_admin_profile', { 
+  // NOTE: Initialize with EMPTY arrays for production (removed MOCKS)
+  const [benefits, setBenefits] = useState<PartnerBenefit[]>(() => loadFromStorage('pp_benefits', PARTNER_BENEFITS));
+  const [partners, setPartners] = useState<Partner[]>(() => loadFromStorage('pp_partners', [])); 
+  const [customers, setCustomers] = useState<Customer[]>(() => loadFromStorage('pp_customers', []));
+  const [products, setProducts] = useState<VoucherPack[]>(() => loadFromStorage('pp_products', VOUCHER_PACKS));
+  const [marketingAssets, setMarketingAssets] = useState<MarketingAsset[]>(() => loadFromStorage('pp_marketing', []));
+  const [faqItems, setFaqItems] = useState<FAQItem[]>(() => loadFromStorage('pp_faq', INITIAL_FAQS));
+  const [staffMembers, setStaffMembers] = useState<AdminUser[]>(() => loadFromStorage('pp_staff', []));
+  const [transactions, setTransactions] = useState<PartnerTransaction[]>(() => loadFromStorage('pp_transactions', []));
+  const [emailCampaigns, setEmailCampaigns] = useState<EmailCampaign[]>(() => loadFromStorage('pp_campaigns', []));
+
+  const [adminProfile, setAdminProfile] = useState<Partial<AdminUser>>(() => {
+    const saved = loadFromStorage<any>('pp_admin_profile', null);
+    const defaults = { 
       name: 'Admin Principal', 
       email: 'privi.pass@gmail.com', 
       role: 'Admin', 
       avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000',
-      password: 'admin' // Default Password
-    })
-  );
+      password: 'admin' 
+    };
+    if (saved) {
+        return { ...defaults, ...saved, password: saved.password || 'admin' };
+    }
+    return defaults;
+  });
 
-  // Salvar automaticamente no Storage
+  // --- PERSISTENCE EFFECTS ---
   useEffect(() => { localStorage.setItem('pp_benefits', JSON.stringify(benefits)); }, [benefits]);
   useEffect(() => { localStorage.setItem('pp_partners', JSON.stringify(partners)); }, [partners]);
   useEffect(() => { localStorage.setItem('pp_customers', JSON.stringify(customers)); }, [customers]);
@@ -83,8 +83,10 @@ export default function App() {
   useEffect(() => { localStorage.setItem('pp_faq', JSON.stringify(faqItems)); }, [faqItems]);
   useEffect(() => { localStorage.setItem('pp_staff', JSON.stringify(staffMembers)); }, [staffMembers]);
   useEffect(() => { localStorage.setItem('pp_admin_profile', JSON.stringify(adminProfile)); }, [adminProfile]);
+  useEffect(() => { localStorage.setItem('pp_transactions', JSON.stringify(transactions)); }, [transactions]);
+  useEffect(() => { localStorage.setItem('pp_campaigns', JSON.stringify(emailCampaigns)); }, [emailCampaigns]);
 
-  // Persistência da Sessão
+  // Session Persistence
   useEffect(() => {
       const savedSession = localStorage.getItem('pp_session');
       if (savedSession) {
@@ -104,10 +106,7 @@ export default function App() {
               localStorage.removeItem('pp_session');
           }
       }
-      
-      const timer = setTimeout(() => {
-        setIsBooting(false);
-      }, 1500);
+      const timer = setTimeout(() => { setIsBooting(false); }, 1500);
       return () => clearTimeout(timer);
   }, []); 
 
@@ -117,7 +116,8 @@ export default function App() {
       }
   }, [currentUser, appMode]);
 
-  // Handlers
+  // --- ACTIONS ---
+
   const handleGetStarted = () => setAppMode('AUTH');
   
   const handleAuthenticated = (role: 'client' | 'admin' | 'partner', user?: any) => {
@@ -128,12 +128,11 @@ export default function App() {
       setCurrentUser(user);
       setAppMode('PARTNER_DASHBOARD');
     } else {
-      // CLIENT LOGIC
       const existingCustomer = customers.find(c => c.email.toLowerCase() === user.email.toLowerCase());
-      
       if (existingCustomer) {
         setCurrentUser(existingCustomer);
       } else {
+        // New Customer Logic
         const newCustomer: Customer = {
             id: Date.now().toString(),
             name: user.name || 'Novo Cliente',
@@ -149,6 +148,9 @@ export default function App() {
         };
         setCustomers(prev => [newCustomer, ...prev]);
         setCurrentUser(newCustomer);
+        
+        // Simulate Welcome Email
+        console.log(`[System] Email de Boas-Vindas enviado para ${user.email}`);
       }
       setAppMode('CLIENT_AREA');
     }
@@ -161,7 +163,7 @@ export default function App() {
     setCurrentUser(null);
   };
 
-  // --- CUSTOMER MANAGEMENT (CRUD) ---
+  // CRUD Customers
   const handleAddCustomer = (newCustomer: Partial<Customer>) => {
       const customer: Customer = {
           id: Date.now().toString(),
@@ -187,15 +189,15 @@ export default function App() {
   };
 
   const handleDeleteCustomer = (id: string) => {
-      setCustomers(prevCustomers => prevCustomers.filter(c => String(c.id) !== String(id)));
+      setCustomers(prev => prev.filter(c => String(c.id) !== String(id)));
   };
 
-  // --- PRODUCT MANAGEMENT ---
+  // Product
   const handleUpdateProduct = (updatedProduct: VoucherPack) => {
       setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
   };
 
-  // --- PARTNER FLOW HANDLERS ---
+  // Partner
   const handlePartnerRegister = () => setAppMode('PARTNER_REGISTER');
   
   const handlePartnerRegisterSubmit = (newPartnerData: any) => {
@@ -209,7 +211,6 @@ export default function App() {
         commissionValue: newPartnerData.category === 'Motorista' ? 50 : 10,
         avatarUrl: `https://ui-avatars.com/api/?name=${newPartnerData.name}&background=random`
     };
-    
     setPartners([...partners, newPartner]);
     setCurrentUser(newPartner);
     setAppMode('PARTNER_DASHBOARD');
@@ -217,7 +218,6 @@ export default function App() {
 
   const handlePartnerLoginClick = () => setAppMode('AUTH'); 
 
-  // --- ADMIN PARTNER MANAGEMENT ---
   const handleUpdatePartnerStatus = (id: string, status: 'Ativo' | 'Bloqueado' | 'Pendente') => {
      setPartners(partners.map(p => p.id === id ? { ...p, status: status as any } : p));
   };
@@ -226,7 +226,14 @@ export default function App() {
       setPartners(prev => prev.filter(p => p.id !== id));
   };
 
-  // --- BENEFITS MANAGEMENT ---
+  const handleUpdateTransaction = (id: string, updates: Partial<PartnerTransaction>) => {
+      setTransactions(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
+  const handleDeleteTransaction = (id: string) => {
+      setTransactions(prev => prev.filter(t => t.id !== id));
+  };
+
   const handleAddBenefit = (benefit: PartnerBenefit) => {
     setBenefits([...benefits, benefit]);
   };
@@ -234,7 +241,6 @@ export default function App() {
     setBenefits(benefits.filter(b => b.id !== id));
   };
 
-  // --- MARKETING MANAGEMENT ---
   const handleAddMarketingAsset = (asset: MarketingAsset) => {
       setMarketingAssets([...marketingAssets, asset]);
   };
@@ -242,7 +248,6 @@ export default function App() {
       setMarketingAssets(marketingAssets.filter(a => a.id !== id));
   };
 
-  // --- FAQ MANAGEMENT ---
   const handleAddFAQ = (item: FAQItem) => {
       setFaqItems([...faqItems, item]);
   };
@@ -253,7 +258,6 @@ export default function App() {
       setFaqItems(faqItems.filter(f => f.id !== id));
   };
 
-  // --- STAFF & PROFILE MANAGEMENT ---
   const handleAddStaff = (staff: AdminUser) => {
       setStaffMembers([...staffMembers, staff]);
   };
@@ -264,7 +268,11 @@ export default function App() {
       setAdminProfile(prev => ({ ...prev, ...data }));
   };
 
-  // Boot Screen
+  const handleSendCampaign = (campaign: EmailCampaign) => {
+      setEmailCampaigns([campaign, ...emailCampaigns]);
+      // Here you would trigger the actual Email Service
+  };
+
   if (isBooting) {
     return (
       <div className="h-screen w-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
@@ -283,7 +291,7 @@ export default function App() {
             </div>
          </div>
          <div className="absolute bottom-10 text-zinc-600 text-[10px] font-mono">
-            v3.2.2 • Production Ready
+            v3.7.0 • Production Clean
          </div>
       </div>
     );
@@ -313,7 +321,7 @@ export default function App() {
             partners={partners} 
             customers={customers}
             staff={staffMembers}
-            adminProfile={adminProfile as AdminUser} // Pass Admin Profile
+            adminProfile={adminProfile as AdminUser} 
         />
     );
   }
@@ -354,10 +362,14 @@ export default function App() {
             partners={partners} 
             onUpdateStatus={handleUpdatePartnerStatus} 
             onDelete={handleDeletePartner} 
+            transactions={transactions} 
+            onUpdateTransaction={handleUpdateTransaction} 
+            onDeleteTransaction={handleDeleteTransaction} 
         />
       );
       case 'benefits': return <BenefitsManager benefits={benefits} onAdd={handleAddBenefit} onRemove={handleRemoveBenefit} />;
       case 'marketing': return <MarketingManager assets={marketingAssets} onAdd={handleAddMarketingAsset} onRemove={handleRemoveMarketingAsset} />;
+      case 'email': return <MailManager customers={customers} partners={partners} campaigns={emailCampaigns} onSendCampaign={handleSendCampaign} />;
       case 'concierge': return <Concierge />;
       case 'settings': return (
          <Settings 
@@ -387,6 +399,7 @@ export default function App() {
         isMobileOpen={isMobileMenuOpen}
         setIsMobileOpen={setIsMobileMenuOpen}
         onLogout={handleLogout}
+        currentUser={currentUser} 
       />
       
       <div className="flex-1 flex flex-col md:ml-72 h-full relative z-0 transition-all duration-300">
@@ -399,7 +412,6 @@ export default function App() {
            </button>
         </div>
 
-        {/* Pass Real Admin Profile Data */}
         <Header onNavigate={setAdminView} adminProfile={adminProfile as AdminUser} />
         
         <main className="flex-1 overflow-y-auto p-0 scroll-smooth custom-scrollbar relative">

@@ -15,7 +15,7 @@ interface SettingsProps {
 type SettingsTab = 'profile' | 'staff' | 'security' | 'notifications' | 'api';
 
 export const Settings: React.FC<SettingsProps> = ({ 
-    adminProfile = {}, 
+    adminProfile = {} as Partial<AdminUser>, 
     onUpdateProfile,
     staff = [],
     onAddStaff,
@@ -93,7 +93,9 @@ export const Settings: React.FC<SettingsProps> = ({
           return;
       }
       // Check current password (basic check against prop)
-      if(adminProfile.password && passwordData.current !== adminProfile.password) {
+      // Cast to ensure TS knows it's AdminUser
+      const currentPassword = (adminProfile as Partial<AdminUser>).password;
+      if(currentPassword && passwordData.current !== currentPassword) {
           alert("Senha atual incorreta.");
           return;
       }

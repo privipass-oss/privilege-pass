@@ -32,6 +32,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (formData.password.length < 6) {
+        alert("A senha deve ter no mínimo 6 caracteres.");
+        return;
+    }
+
     setLoading(true);
     
     setTimeout(() => {
@@ -64,11 +70,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       // 3. Check Partner
       const foundPartner = partners.find(p => p.email.toLowerCase() === inputEmail);
       if (foundPartner) {
+        if (mode === 'REGISTER') {
+             alert("Este email já é de um parceiro. Faça login.");
+             setMode('LOGIN');
+             return;
+        }
         onAuthenticated('partner', foundPartner);
         return;
       }
       
-      // 4. Client Login Validation
+      // 4. Client Logic
       if (mode === 'LOGIN') {
           const foundCustomer = customers.find(c => c.email.toLowerCase() === inputEmail);
           
@@ -90,8 +101,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               return;
           }
           
+          // Send Welcome Email (Simulated)
+          console.log(`[System] Sending Welcome Email to ${inputEmail}`);
+          
           onAuthenticated('client', { 
-              name: formData.name || 'Visitante', 
+              name: formData.name || 'Cliente', 
               email: formData.email,
               vouchers: [],
               password: formData.password 
@@ -119,7 +133,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
              {mode === 'LOGIN' ? 'Bem-vindo de volta' : 'Criar sua conta'}
            </h2>
            <p className="text-zinc-500 text-sm mt-2">
-             {mode === 'LOGIN' ? 'Acesse sua conta Cliente ou Parceiro.' : 'Cadastre-se para comprar acesso VIP.'}
+             {mode === 'LOGIN' ? 'Acesse sua conta para gerenciar vouchers.' : 'Cadastre-se para comprar acesso VIP.'}
            </p>
         </div>
 
@@ -181,6 +195,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 onChange={e => setFormData({...formData, password: e.target.value})}
               />
             </div>
+            <p className="text-[10px] text-zinc-600 text-right">Mínimo 6 caracteres</p>
           </div>
 
           <button 
@@ -209,12 +224,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             </button>
           </p>
         </div>
-      </div>
-
-      <div className="absolute bottom-6 text-center w-full px-4">
-        <p className="text-zinc-700 text-[10px] md:text-xs">
-          Acesso Admin: {adminProfile?.email} | Acesso Parceiro: Use o email cadastrado
-        </p>
       </div>
     </div>
   );

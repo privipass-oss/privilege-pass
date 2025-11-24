@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { LayoutDashboard, ShoppingBag, Plane, Settings, LogOut, BarChart3, Users, Gift, Tag, Megaphone, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Plane, Settings, LogOut, BarChart3, Users, Gift, Tag, Megaphone, HelpCircle, Mail } from 'lucide-react';
 import { MENU_ITEMS, LOGO_URL } from '../constants';
-import { ViewState } from '../types';
+import { ViewState, AdminUser } from '../types';
 
 interface SidebarProps {
   currentView: ViewState;
@@ -10,10 +10,28 @@ interface SidebarProps {
   isMobileOpen?: boolean;
   setIsMobileOpen?: (open: boolean) => void;
   onLogout?: () => void;
+  currentUser?: AdminUser; 
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isMobileOpen = false, setIsMobileOpen, onLogout }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isMobileOpen = false, setIsMobileOpen, onLogout, currentUser }) => {
   
+  const role = currentUser?.role || 'Admin'; 
+
+  const getPermittedItems = () => {
+      switch(role) {
+          case 'Suporte':
+              return ['dashboard', 'members', 'concierge', 'faq', 'travel-hub', 'benefits']; 
+          case 'Financeiro':
+              return ['dashboard', 'products', 'analytics', 'partners', 'marketing', 'email'];
+          case 'Admin':
+          default:
+              return MENU_ITEMS.map(i => i.id);
+      }
+  };
+
+  const permittedIds = getPermittedItems();
+  const filteredMenu = MENU_ITEMS.filter(item => permittedIds.includes(item.id));
+
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case 'LayoutDashboard': return <LayoutDashboard size={22} />;
@@ -26,6 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isM
       case 'Tag': return <Tag size={22} />;
       case 'Megaphone': return <Megaphone size={22} />;
       case 'HelpCircle': return <HelpCircle size={22} />;
+      case 'Mail': return <Mail size={22} />; // Added Mail icon
       default: return <LayoutDashboard size={22} />;
     }
   };
@@ -61,14 +80,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isM
           </div>
           <div>
             <h1 className="text-xl font-display font-bold text-white tracking-tight">PRIVILEGE</h1>
-            <span className="text-[10px] text-amber-500 font-bold tracking-[0.3em] uppercase block mt-0.5">Pass Global</span>
+            <span className="text-[10px] text-amber-500 font-bold tracking-[0.3em] uppercase block mt-0.5">{role} Access</span>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-8 space-y-1 overflow-y-auto custom-scrollbar">
-          <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-4">Gestão Geral</p>
-          {MENU_ITEMS.map((item) => (
+          <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-4">Menu {role}</p>
+          {filteredMenu.map((item) => (
             <button
               key={item.id}
               onClick={() => {
@@ -112,7 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isM
             </div>
           </button>
           <div className="mt-4 text-center">
-            <p className="text-[10px] text-zinc-700">v3.1 • Dragon Pass Integration</p>
+            <p className="text-[10px] text-zinc-700">v3.7.0 • Production Clean</p>
           </div>
         </div>
       </aside>
