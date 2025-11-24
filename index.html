@@ -154,6 +154,18 @@
   }
 }
 </script>
+  <script>
+    // Remove admin credentials from footer
+    document.addEventListener('DOMContentLoaded', function() {
+      const elements = document.querySelectorAll('body *');
+      elements.forEach(el => {
+        if (el.textContent && el.textContent.includes('Acesso Admin')) {
+          el.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
 </head>
   <body>
     <div id="root"></div>
