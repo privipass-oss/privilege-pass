@@ -63,10 +63,10 @@ export default function PrivilegeApp() {
     const saved = loadFromStorage<any>('pp_admin_profile', null);
     const defaults = { 
       name: 'Admin Principal', 
-      email: privi-pass@gmail.com, 
+      email: privi.pass@gmail.com, 
       role: 'Admin', 
       avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=000',
-      password: 'Dejavu' 
+      password: 'admin 
     };
     if (saved) {
         return { ...defaults, ...saved, password: saved.password || 'admin' };
