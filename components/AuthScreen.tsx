@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, Phone, ArrowRight, ArrowLeft } from 'lucide-react';
 import { AuthMode, Partner, Customer, AdminUser } from '../types';
 import { LOGO_URL } from '../constants';
+import { supabase } from '../services/supabaseClient';
 
 interface AuthScreenProps {
   onAuthenticated: (role: 'client' | 'admin' | 'partner', user?: any) => void;
@@ -30,7 +31,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
     phone: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitasync  = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.password.length < 6) {
@@ -103,6 +104,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           
           // Send Welcome Email (Simulated)
           console.log(`[System] Sending Welcome Email to ${inputEmail}`);
+                    // Save customer to Supabase
+            await supabase.from('customers').insert([
+              {
+                name: formData.name || 'Cliente',
+                email: formData.email,
+                password: formData.password,
+                phone: formData.phone
+              }
+            ]);
           
           onAuthenticated('client', { 
               name: formData.name || 'Cliente', 
