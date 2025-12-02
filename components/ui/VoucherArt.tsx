@@ -1,7 +1,6 @@
-
 import React from 'react';
-import { LOGO_URL } from '../../constants';
-import { Plane, Globe, Star, Clock } from 'lucide-react';
+import { LOGO_URL } from '../../constants'; // Ensure this points to your Gold Wing 'P' logo
+import { Plane, Globe, Star, ShieldCheck, QrCode } from 'lucide-react';
 
 interface VoucherArtProps {
   passengerName: string;
@@ -25,90 +24,114 @@ export const VoucherArt: React.FC<VoucherArtProps> = ({
   const isPending = !qrCodeUrl;
 
   return (
-    <div className="w-full max-w-sm mx-auto relative drop-shadow-2xl transform transition-transform hover:scale-[1.02] duration-300 bg-transparent">
+    <div className="w-full max-w-[340px] mx-auto relative drop-shadow-2xl transform transition-transform hover:scale-[1.01] duration-500">
       
-      {/* Top Section (The "Art") */}
-      <div className="relative h-48 bg-black rounded-t-3xl overflow-hidden border border-white/10 border-b-0">
-        <img 
-          src={type === 'Internacional' 
-            ? "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
-            : "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=800&q=80"
-          } 
-          className={`absolute inset-0 w-full h-full object-cover ${isPending ? 'grayscale opacity-40' : 'opacity-60'}`}
-          alt=""
-          crossOrigin="anonymous"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-zinc-900"></div>
+      {/* THE MONOLITH CARD CONTAINER */}
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-[#CFB16D]/40 bg-[#0a0a0a] h-auto min-h-[580px] flex flex-col">
         
-        <div className="absolute top-6 left-6 flex items-center gap-3 z-10">
-          <img src={LOGO_URL} className="w-10 h-10 rounded border border-gold-500/50 bg-black/50 backdrop-blur" crossOrigin="anonymous" />
-          <div>
-             <p className="text-white font-display font-bold text-lg tracking-wider leading-none">PRIVILEGE</p>
-             <p className="text-gold-500 text-[10px] font-bold tracking-[0.3em] uppercase">Global Access</p>
+        {/* 1. BACKGROUND TEXTURES */}
+        <div className="absolute inset-0 z-0">
+           {/* Dark Marble/Noise Texture Simulation */}
+           <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+           {/* Gold Gradient Sheen */}
+           <div className="absolute inset-0 bg-gradient-to-br from-[#CFB16D]/5 via-transparent to-[#CFB16D]/5"></div>
+        </div>
+
+        {/* 2. INNER BORDER (Double border effect for luxury) */}
+        <div className="absolute inset-[4px] rounded-[2.2rem] border-[0.5px] border-[#CFB16D]/20 z-10 pointer-events-none"></div>
+
+        {/* 3. CONTENT CONTENT */}
+        <div className="relative z-20 flex flex-col items-center pt-8 pb-8 px-6 h-full justify-between">
+
+          {/* --- HEADER SECTION --- */}
+          <div className="flex flex-col items-center w-full">
+            {/* Logo Area */}
+            <div className="mb-4 p-3 rounded-full border border-[#CFB16D]/30 bg-[#CFB16D]/5 shadow-[0_0_15px_rgba(207,177,109,0.15)]">
+              <img 
+                src={LOGO_URL} 
+                alt="Privilege Pass Logo" 
+                className="w-10 h-10 object-contain drop-shadow-md" 
+                crossOrigin="anonymous" 
+              />
+            </div>
+            
+            <h2 className="text-[#CFB16D] text-[10px] font-bold tracking-[0.3em] uppercase mb-1">Privilege Global Access</h2>
+            
+            {/* Membership Tag */}
+            <div className="mt-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#CFB16D] to-[#9E7D35]">
+              <div className="flex items-center gap-1 text-black font-bold text-[9px] tracking-widest uppercase">
+                <Star size={10} fill="black" strokeWidth={0} />
+                <span>Membro Black</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="absolute top-6 right-6 z-10">
-           <div className="bg-white/10 backdrop-blur border border-white/20 px-3 py-1 rounded-full flex items-center gap-1">
-              <Star size={10} className="text-gold-500 fill-gold-500" />
-              <span className="text-[10px] font-bold text-white uppercase">First Class</span>
-           </div>
-        </div>
-      </div>
+          {/* --- PASSENGER SECTION --- */}
+          <div className="w-full text-center my-6 space-y-1">
+            <p className="text-[#CFB16D]/50 text-[9px] uppercase tracking-widest font-medium">Passageiro / Passenger</p>
+            <h1 className="text-white font-serif text-2xl leading-tight tracking-wide font-medium truncate drop-shadow-md">
+              {passengerName}
+            </h1>
+          </div>
 
-      {/* Middle Section (Details) */}
-      <div className="bg-zinc-900 relative border-x border-white/10 p-6">
-          <div className="absolute -top-3 -left-3 w-6 h-6 bg-black rounded-full border-r border-b border-white/10 z-20"></div>
-          <div className="absolute -top-3 -right-3 w-6 h-6 bg-black rounded-full border-l border-b border-white/10 z-20"></div>
-          <div className="absolute top-0 left-4 right-4 border-t-2 border-dashed border-zinc-700/50"></div>
+          {/* --- DETAILS GRID --- */}
+          <div className="w-full grid grid-cols-2 gap-4 border-t border-b border-[#CFB16D]/20 py-4 mb-6">
+            <div className="text-left">
+              <p className="text-[#CFB16D]/50 text-[8px] uppercase tracking-widest mb-1">Voucher Type</p>
+              <div className="flex items-center gap-2 text-white/90 font-medium text-xs">
+                {type === 'Internacional' ? <Globe size={12} className="text-[#CFB16D]"/> : <Plane size={12} className="text-[#CFB16D]"/>}
+                <span className="truncate">{planName}</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[#CFB16D]/50 text-[8px] uppercase tracking-widest mb-1">Validity</p>
+              <p className="text-white/90 font-medium text-xs">
+                {expiryDate || 'VALID 1 YEAR'}
+              </p>
+            </div>
+          </div>
 
-          <div className="space-y-4 mt-2">
-             <div>
-                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Passageiro / Passenger</p>
-                <p className="text-white font-bold text-xl font-display tracking-wide truncate">{passengerName}</p>
-             </div>
+          {/* --- QR CODE SECTION (The Jewel) --- */}
+          <div className="w-full flex flex-col items-center">
+            <div className="relative p-3 rounded-xl bg-[#151515] border border-[#CFB16D]/30 shadow-inner mb-3 group transition-all duration-300 hover:border-[#CFB16D]/60">
+              
+              {/* Glow effect behind QR */}
+              <div className="absolute inset-0 bg-[#CFB16D] opacity-0 group-hover:opacity-5 blur-xl transition-opacity duration-500"></div>
 
-             <div className="flex justify-between items-end">
-                <div>
-                   <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Voucher Type</p>
-                   <p className="text-gold-500 font-bold text-sm flex items-center gap-2">
-                      {type === 'Internacional' ? <Globe size={14}/> : <Plane size={14}/>}
-                      {planName}
-                   </p>
+              {isPending ? (
+                <div className="w-32 h-32 flex flex-col items-center justify-center text-[#CFB16D]/40 border-2 border-dashed border-[#CFB16D]/20 rounded-lg">
+                   <Clock size={24} className="mb-2 animate-pulse" />
+                   <span className="text-[8px] font-bold uppercase tracking-widest text-center">Aguardando<br/>Emissão</span>
                 </div>
-                {expiryDate && !isPending && (
-                   <div className="text-right">
-                      <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Validade</p>
-                      <p className="text-white font-bold text-sm">{expiryDate}</p>
-                   </div>
-                )}
-             </div>
+              ) : (
+                // Important: Ensure the QR Code image has a transparent background or looks good on white inside this box.
+                // Using mix-blend-screen or filters can help integrate it better if it's a standard black/white QR.
+                <div className="bg-white p-1 rounded-lg">
+                    <img 
+                      src={qrCodeUrl} 
+                      alt="Access QR" 
+                      className="w-32 h-32 object-contain" 
+                      crossOrigin="anonymous" 
+                    />
+                </div>
+              )}
+            </div>
+
+            <p className="text-[#CFB16D] font-mono text-base tracking-[0.15em] font-bold drop-shadow-sm">
+              {formattedCode}
+            </p>
           </div>
-      </div>
 
-      {/* Bottom Section (QR Code) */}
-      <div className="bg-white rounded-b-3xl p-6 relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold-300 via-gold-500 to-gold-300"></div>
-
-          <div className="flex flex-col items-center justify-center">
-             <div className="w-32 h-32 bg-white p-2 mb-2">
-                {isPending ? (
-                    <div className="w-full h-full bg-zinc-100 flex flex-col items-center justify-center text-zinc-400 border-2 border-dashed border-zinc-300 rounded-lg">
-                        <Clock size={32} className="mb-2 animate-pulse" />
-                        <span className="text-[10px] font-bold text-center">Aguardando<br/>Emissão</span>
-                    </div>
-                ) : (
-                    <img src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain" crossOrigin="anonymous" />
-                )}
+          {/* --- FOOTER --- */}
+          <div className="mt-6 flex flex-col items-center gap-1 opacity-60">
+             <div className="flex items-center gap-1.5 text-[#CFB16D] text-[8px] uppercase tracking-[0.2em]">
+               <ShieldCheck size={10} />
+               <span>Secure Pass Technology</span>
              </div>
-             
-             <div className="mb-2">
-                <p className={`text-black font-mono font-bold text-lg tracking-wider text-center ${isPending ? 'opacity-50' : ''}`}>{formattedCode}</p>
-             </div>
-
-             <p className="text-zinc-400 text-[10px] font-mono uppercase tracking-widest">{isPending ? 'Pagamento Aprovado' : 'Scan at Reception'}</p>
-             <p className="text-black font-bold text-xs mt-1">{isPending ? 'EMISSÃO EM ANDAMENTO' : 'NOMINAL & INTRANSFERÍVEL'}</p>
+             <p className="text-[7px] text-zinc-500 font-medium">Nominal & Intransferível</p>
           </div>
+
+        </div>
       </div>
     </div>
   );
